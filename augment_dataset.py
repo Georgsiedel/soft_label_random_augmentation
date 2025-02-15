@@ -337,9 +337,9 @@ if __name__ == "__main__":
     augmentation_sign = True
 
     # Create the transformations for preprocessing and augmentation
-    transforms_preprocess, transforms_augmentation = create_transforms(random_erasing=True,
-                                                                       random_cropping=False, 
-                                                                       aggressive_augmentation=False, 
+    transforms_preprocess, transforms_augmentation = create_transforms(random_erasing=False,
+                                                                       random_cropping=True, 
+                                                                       aggressive_augmentation=True, 
                                                                        custom=True, 
                                                                        augmentation_name=augmentation_type, 
                                                                        augmentation_severity=augmentation_severity, 
