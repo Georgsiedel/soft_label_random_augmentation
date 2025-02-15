@@ -101,7 +101,6 @@ class RandomCrop:
 
         to_tensor = transforms.ToTensor()
         if isinstance(image, tuple):
-            print(image)
             raise TypeError(f"Expected PIL Image but got {type(image)}")
         image = to_tensor(image)
         dim1, dim2 = image.size(1), image.size(2)
@@ -132,16 +131,13 @@ class RandomCrop:
         to_pil = transforms.ToPILImage()
         cropped_image = to_pil(cropped_image)
 
-        # prob_crop = ComputeProb(self.bg_crop, max_prob=1.0, pow=4.0, n_classes=self.n_class)
-        # print(f'prob_crop: {prob_crop}')
-
         if self.custom:
             # compute visibility and confidence score
             visibility = self.compute_visibility(dim1, dim2, tx, ty)
             confidence_rc = (
                 1 - (1 - self.chance) * (1 - visibility) ** self.k
             )  # The non-linear function
-            print(f"Random crop applied: tx={tx}, ty={ty}, visibility={visibility}, confidence={confidence_rc}")
+            # print(f"Random crop applied: tx={tx}, ty={ty}, visibility={visibility}, confidence={confidence_rc}")
         else:
             confidence_rc = torch.tensor(1.0)
         if confidence_aa is not None:

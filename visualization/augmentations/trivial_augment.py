@@ -543,7 +543,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
             to_tensor = transforms.Compose([transforms.ToTensor()])
             augment_im = to_tensor(augment_im)
 
-        print(f"Trivial augment applied: Augmentation info: {augment_info}, conf: {confidence_aa}")
+        # print(f"Trivial augment applied: Augmentation info: {augment_info}, conf: {confidence_aa}")
         # return augment_im, [augmentation_magnitude, confidence_aa]
         return augment_im, confidence_aa
 

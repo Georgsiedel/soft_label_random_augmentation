@@ -53,7 +53,7 @@ class AugmentedDataset(torch.utils.data.Dataset):
             Optional[float]: The combined confidence value.
         """
         combined_confidence = reduce(lambda x, y: x * y, confidences)
-        print(f"Confidences: {confidences}\tCombined Confidence: {combined_confidence}\n")
+        # print(f"Confidences: {confidences}\tCombined Confidence: {combined_confidence}\n")
         return combined_confidence
 
     def __getitem__(self, i: Optional[int]) -> Optional[tuple]:
@@ -78,7 +78,6 @@ class AugmentedDataset(torch.utils.data.Dataset):
         )
 
         if isinstance(x, tuple):
-            print(x)
             raise ValueError("Tuple not supported")
         augment_x = augment(x)
 
