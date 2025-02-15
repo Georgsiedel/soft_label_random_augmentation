@@ -9,6 +9,7 @@ from typing import Optional
 from visualization.augmentations.trivial_augment import CustomTrivialAugmentWide
 from visualization.augmentations.random_crop import RandomCrop
 from visualization.augmentations.random_choice import RandomChoiceTransforms
+from visualization.augmentations.random_erasing import RandomErasing
 
 import random
 
@@ -92,7 +93,8 @@ class AugmentedDataset(torch.utils.data.Dataset):
             else:
                 combined_confidence = confidences
 
-        augment_x = self.preprocess(augment_x)
+        if not isinstance(augment_x, torch.Tensor):
+            augment_x = self.preprocess(augment_x)
 
         if self.robust_samples == 0:
             if augmentation_magnitude is not None:
@@ -110,6 +112,7 @@ class AugmentedDataset(torch.utils.data.Dataset):
 
 
 def create_transforms(
+    random_erasing: bool = False,
     random_cropping: bool = False,
     aggressive_augmentation: bool = False,
     custom: bool = False,
@@ -133,7 +136,6 @@ def create_transforms(
     augmentations = [
         transforms.RandomHorizontalFlip(),
         transforms.RandomCrop(32, padding=4),       # For Tiny-ImageNet: 64 x 64; For CIFAR: 32 x 32
-        # transforms.TrivialAugmentWide(),
     ]
 
     """Sequential Augmentations"""
@@ -155,6 +157,10 @@ def create_transforms(
         else:
             augmentations.pop(-1)
         augmentations.append(RandomCrop(dataset_name=dataset_name, custom=custom, seed=seed))
+    
+    if random_erasing:
+        augmentations.append(transforms.TrivialAugmentWide())
+        augmentations.append(RandomErasing(p=0.3, scale=(0.02, 0.33), ratio=(0.3, 3.3), value='random', custom=custom, dataset_name=dataset_name))
     """Sequential Augmentations"""
         
 
@@ -318,7 +324,7 @@ def seed_worker():
 if __name__ == "__main__":
 
     # Set the batch size for the data loader
-    batch_size = 5
+    batch_size = 50
     DATASET_NAME = "CIFAR10"
 
     # Set the random seed for reproducibility
@@ -331,8 +337,9 @@ if __name__ == "__main__":
     augmentation_sign = True
 
     # Create the transformations for preprocessing and augmentation
-    transforms_preprocess, transforms_augmentation = create_transforms(random_cropping=True, 
-                                                                       aggressive_augmentation=True, 
+    transforms_preprocess, transforms_augmentation = create_transforms(random_erasing=True,
+                                                                       random_cropping=False, 
+                                                                       aggressive_augmentation=False, 
                                                                        custom=True, 
                                                                        augmentation_name=augmentation_type, 
                                                                        augmentation_severity=augmentation_severity, 
@@ -356,6 +363,6 @@ if __name__ == "__main__":
     # Display a grid of images with labels and confidence scores
     classes = trainset.dataset.classes
     images, labels, confidences = next(iter(trainloader))
-    # display_image_grid(images, labels, confidences, batch_size=batch_size, classes=classes)
+    display_image_grid(images, labels, confidences, batch_size=batch_size, classes=classes)
     print(f"Confidence: {confidences}")
 
