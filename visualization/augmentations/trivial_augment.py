@@ -118,6 +118,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         augmentation_name: str = None,
         get_signed: bool = False,
         dataset_name: str = "CIFAR10",
+        individual_analysis: bool = False,
     ):
         super().__init__()
         self.custom = custom
@@ -125,11 +126,13 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         self.interpolation = interpolation
         self.fill = fill
         self.dataset_name = dataset_name
+        self.individual_analysis = individual_analysis
 
         """MODIFICATION: Add severity"""
-        # self.severity = severity
-        # self.augmentation_name = augmentation_name
-        # self.get_signed = get_signed
+        if self.individual_analysis:
+            self.severity = severity
+            self.augmentation_name = augmentation_name
+            self.get_signed = get_signed
         self.k = 2
         """MODIFICATION: Add severity"""
 
@@ -143,64 +146,66 @@ class CustomTrivialAugmentWide(torch.nn.Module):
             raise ValueError(f"Dataset name {dataset_name} not supported")
 
     def _augmentation_space(self, num_bins: int) -> Dict[str, Tuple[Tensor, bool]]:
-        return {
-            "Identity": (torch.tensor(0.0), False),
-            "ShearX": (torch.linspace(0.0, 0.99, num_bins), True),
-            "ShearY": (torch.linspace(0.0, 0.99, num_bins), True),
-            "TranslateX": (torch.linspace(0.0, 32.0, num_bins), True),
-            "TranslateY": (torch.linspace(0.0, 32.0, num_bins), True),
-            "Rotate": (torch.linspace(0.0, 135.0, num_bins), True),
-            "Brightness": (torch.linspace(0.0, 0.99, num_bins), True),
-            "Color": (torch.linspace(0.0, 0.99, num_bins), True),
-            "Contrast": (torch.linspace(0.0, 0.99, num_bins), True),
-            "Sharpness": (torch.linspace(0.0, 0.99, num_bins), True),
-            "Posterize": (
-                8 - (torch.arange(num_bins) / ((num_bins - 1) / 6)).round().int(),
-                False,
-            ),
-            "Solarize": (torch.linspace(255.0, 0.0, num_bins), False),
-            "AutoContrast": (torch.tensor(0.0), False),
-            "Equalize": (torch.tensor(0.0), False),
-        }
+        if not self.individual_analysis:
+            return {
+                "Identity": (torch.tensor(0.0), False),
+                "ShearX": (torch.linspace(0.0, 0.99, num_bins), True),
+                "ShearY": (torch.linspace(0.0, 0.99, num_bins), True),
+                "TranslateX": (torch.linspace(0.0, 32.0, num_bins), True),
+                "TranslateY": (torch.linspace(0.0, 32.0, num_bins), True),
+                "Rotate": (torch.linspace(0.0, 135.0, num_bins), True),
+                "Brightness": (torch.linspace(0.0, 0.99, num_bins), True),
+                "Color": (torch.linspace(0.0, 0.99, num_bins), True),
+                "Contrast": (torch.linspace(0.0, 0.99, num_bins), True),
+                "Sharpness": (torch.linspace(0.0, 0.99, num_bins), True),
+                "Posterize": (
+                    8 - (torch.arange(num_bins) / ((num_bins - 1) / 6)).round().int(),
+                    False,
+                ),
+                "Solarize": (torch.linspace(255.0, 0.0, num_bins), False),
+                "AutoContrast": (torch.tensor(0.0), False),
+                "Equalize": (torch.tensor(0.0), False),
+            }
 
         # print(f'augmentation_name: {self.augmentation_name}\tseverity: {self.severity}')
-        # if self.augmentation_name == "Identity":
-        #     return {"Identity": (torch.tensor(0.0), False)}
-        # elif self.augmentation_name == "ShearX":
-        #     return {"ShearX": (torch.linspace(0.0, 0.99, num_bins), True)}
-        # elif self.augmentation_name == "ShearY":
-        #     return {"ShearY": (torch.linspace(0.0, 0.99, num_bins), True)}
-        # elif self.augmentation_name == "TranslateX":
-        #     return {"TranslateX": (torch.linspace(0.0, 32.0, num_bins), True)}
-        # elif self.augmentation_name == "TranslateY":
-        #     return {"TranslateY": (torch.linspace(0.0, 32.0, num_bins), True)}
-        # elif self.augmentation_name == "Rotate":
-        #     return {"Rotate": (torch.linspace(0.0, 135.0, num_bins), True)}
-        # elif self.augmentation_name == "Brightness":
-        #     return {"Brightness": (torch.linspace(0.0, 0.99, num_bins), True)}
-        # elif self.augmentation_name == "Color":
-        #     return {"Color": (torch.linspace(0.0, 0.99, num_bins), True)}
-        # elif self.augmentation_name == "Contrast":
-        #     return {"Contrast": (torch.linspace(0.0, 0.99, num_bins), True)}
-        # elif self.augmentation_name == "Sharpness":
-        #     return {"Sharpness": (torch.linspace(0.0, 0.99, num_bins), True)}
-        # elif self.augmentation_name == "Posterize":
-        #     return {
-        #         "Posterize": (
-        #             8 - (torch.arange(num_bins) / ((num_bins - 1) / 6)).round().int(),
-        #             False,
-        #         )
-        #     }
-        # elif self.augmentation_name == "Solarize":
-        #     return {"Solarize": (torch.linspace(255.0, 0.0, num_bins), False)}
-        # elif self.augmentation_name == "AutoContrast":
-        #     return {"AutoContrast": (torch.tensor(0.0), False)}
-        # elif self.augmentation_name == "Equalize":
-        #     return {"Equalize": (torch.tensor(0.0), False)}
-        # else:
-        #     raise ValueError(
-        #         f"The provided operator {self.augmentation_name} is not recognized."
-        #     )
+        else:
+            if self.augmentation_name == "Identity":
+                return {"Identity": (torch.tensor(0.0), False)}
+            elif self.augmentation_name == "ShearX":
+                return {"ShearX": (torch.linspace(0.0, 0.99, num_bins), True)}
+            elif self.augmentation_name == "ShearY":
+                return {"ShearY": (torch.linspace(0.0, 0.99, num_bins), True)}
+            elif self.augmentation_name == "TranslateX":
+                return {"TranslateX": (torch.linspace(0.0, 32.0, num_bins), True)}
+            elif self.augmentation_name == "TranslateY":
+                return {"TranslateY": (torch.linspace(0.0, 32.0, num_bins), True)}
+            elif self.augmentation_name == "Rotate":
+                return {"Rotate": (torch.linspace(0.0, 135.0, num_bins), True)}
+            elif self.augmentation_name == "Brightness":
+                return {"Brightness": (torch.linspace(0.0, 0.99, num_bins), True)}
+            elif self.augmentation_name == "Color":
+                return {"Color": (torch.linspace(0.0, 0.99, num_bins), True)}
+            elif self.augmentation_name == "Contrast":
+                return {"Contrast": (torch.linspace(0.0, 0.99, num_bins), True)}
+            elif self.augmentation_name == "Sharpness":
+                return {"Sharpness": (torch.linspace(0.0, 0.99, num_bins), True)}
+            elif self.augmentation_name == "Posterize":
+                return {
+                    "Posterize": (
+                        8 - (torch.arange(num_bins) / ((num_bins - 1) / 6)).round().int(),
+                        False,
+                    )
+                }
+            elif self.augmentation_name == "Solarize":
+                return {"Solarize": (torch.linspace(255.0, 0.0, num_bins), False)}
+            elif self.augmentation_name == "AutoContrast":
+                return {"AutoContrast": (torch.tensor(0.0), False)}
+            elif self.augmentation_name == "Equalize":
+                return {"Equalize": (torch.tensor(0.0), False)}
+            else:
+                raise ValueError(
+                    f"The provided operator {self.augmentation_name} is not recognized."
+                )
 
     def forward(self, im: torch.Tensor) -> Tensor:
         # if self.custom:
@@ -227,23 +232,25 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         magnitudes, signed = op_meta[op_name]
 
         """MODIFCATION: Set magnitude and remove signed"""
-        magnitude = (
-            float(
-                magnitudes[
-                    torch.randint(len(magnitudes), (1,), dtype=torch.long)
-                ].item()
+        if not self.individual_analysis:
+            magnitude = (
+                float(
+                    magnitudes[
+                        torch.randint(len(magnitudes), (1,), dtype=torch.long)
+                    ].item()
+                )
+                if magnitudes.ndim > 0
+                else 0.0
             )
-            if magnitudes.ndim > 0
-            else 0.0
-        )
-        if signed and torch.randint(2, (1,)):
-            magnitude *= -1.0
-        # if magnitudes.ndim > 0:
-        #     magnitude = float(magnitudes[self.severity].item())
-        # else:
-        #     magnitude = 0.0
-        # if self.get_signed and op_name not in ["Solarize", "Posterize"]:
-        #     magnitude *= -1.0
+            if signed and torch.randint(2, (1,)):
+                magnitude *= -1.0
+        else:
+            if magnitudes.ndim > 0:
+                magnitude = float(magnitudes[self.severity].item())
+            else:
+                magnitude = 0.0
+            if self.get_signed and op_name not in ["Solarize", "Posterize"]:
+                magnitude *= -1.0
         """MODIFICATION: Set magnitude and remove signed"""
 
         # return _apply_op(
@@ -544,7 +551,8 @@ class CustomTrivialAugmentWide(torch.nn.Module):
             augment_im = to_tensor(augment_im)
 
         # print(f"Trivial augment applied: Augmentation info: {augment_info}, conf: {confidence_aa}")
-        # return augment_im, [augmentation_magnitude, confidence_aa]
+        if self.individual_analysis:
+            return augment_im, [augmentation_magnitude, confidence_aa]
         return augment_im, confidence_aa
 
     def __call__(

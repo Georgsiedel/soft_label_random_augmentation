@@ -22,7 +22,7 @@ def save_to_csv(
     time_list,
     iq_metric
 ):
-    folder_name = f"/home/ekagra/Documents/GitHub/MasterArbeit/non_linear_mapping_data/{augmentation_type}"
+    folder_name = f"visualization/non_linear_mapping_data/{augmentation_type}"
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
 
@@ -62,7 +62,7 @@ def save_to_csv(
 def plot_mean_std(
     mean, std, model_confidences, augmentation_type=None, augmentation_magnitudes=[]
 ):
-    folder_name = f"/home/ekagra/Documents/GitHub/MasterArbeit/non_linear_mapping_data/{augmentation_type}"
+    folder_name = f"visualization/non_linear_mapping_data/{augmentation_type}"
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
     filename = os.path.join(
@@ -97,7 +97,7 @@ def plot_mean_std(
     plt.show()
 
 
-def plot_mean_std_from_csv(csv_file, augmentation_type=None, iq_metric='scc'):
+def plot_mean_std_from_csv(csv_file, iq_metric, augmentation_type=None):
     # Read the CSV file into a DataFrame
     df = pd.read_csv(csv_file)
     df = df.sort_values(by="severity")
@@ -112,7 +112,7 @@ def plot_mean_std_from_csv(csv_file, augmentation_type=None, iq_metric='scc'):
         augmentation_magnitudes.reverse()
 
     # Create folder if it doesn't exist
-    folder_name = f"/home/ekagra/Documents/GitHub/MasterArbeit/non_linear_mapping_data/{augmentation_type}"
+    folder_name = f"visualization/non_linear_mapping_data/{augmentation_type}"
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
     filename = os.path.join(
@@ -157,6 +157,6 @@ if __name__ == "__main__":
     augmentation_type = "Brightness"
 
     plot_mean_std_from_csv(
-        f"/home/ekagra/Documents/GitHub/MasterArbeit/non_linear_mapping_data/{augmentation_type}/{augmentation_type}_{COMPARISON_METRIC}_results.csv",
+        f"visualization/non_linear_mapping_data/{augmentation_type}/{augmentation_type}_{COMPARISON_METRIC}_results.csv",
         f"{augmentation_type}",
     )

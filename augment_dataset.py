@@ -120,7 +120,8 @@ def create_transforms(
     augmentation_severity: int = 0,
     augmentation_sign: bool = False,
     dataset_name: str = "CIFAR10",
-    seed: Optional[int] = None
+    seed: Optional[int] = None,
+    individual_analysis: Optional[bool] = False,
 ) -> Optional[tuple]:
     """Creates preprocessing and augmentation transformations.
 
@@ -147,7 +148,8 @@ def create_transforms(
                     augmentation_name=augmentation_name,
                     severity=augmentation_severity,
                     get_signed=augmentation_sign,
-                    dataset_name=dataset_name
+                    dataset_name=dataset_name,
+                    individual_analysis=individual_analysis,
                 ))
         else:
             augmentations.extend([transforms.TrivialAugmentWide()])
@@ -325,7 +327,7 @@ if __name__ == "__main__":
 
     # Set the batch size for the data loader
     batch_size = 50
-    DATASET_NAME = "CIFAR10"
+    DATASET_NAME = "CIFAR100"
 
     # Set the random seed for reproducibility
     g = torch.Generator()
