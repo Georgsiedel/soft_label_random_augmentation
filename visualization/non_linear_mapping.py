@@ -136,15 +136,22 @@ if __name__ == "__main__":
         # "Equalize",
     ]
 
-    g = torch.Generator()
-    g.manual_seed(0)
+    # g = torch.Generator()
+    # g.manual_seed(0)
 
-    # Load the saved model weights
-    net = WideResNet_28_4(num_classes=10)
-    PATH = "visualization/models/robust_no_TA_augments.pth"
-    net = torch.nn.DataParallel(net)
-    state_dict = torch.load(PATH, map_location=torch.device("cpu"))
-    net.load_state_dict(state_dict["model_state_dict"], strict=False)
+    # # Load the saved model weights
+    # net = WideResNet_28_4(num_classes=10)
+    # PATH = "visualization/models/robust_no_TA_augments.pth"
+    # net = torch.nn.DataParallel(net)
+    # state_dict = torch.load(PATH, map_location=torch.device("cpu"))
+    # net.load_state_dict(state_dict["model_state_dict"], strict=False)
 
-    for augmentation_type in augmentation_types:
-        get_plot(augmentation_type, model=None, dataset_split=500, worker_init_fn=seed_worker, generator=g)
+    # for augmentation_type in augmentation_types:
+    #     get_plot(augmentation_type, model=None, dataset_split=500, worker_init_fn=seed_worker, generator=g)
+
+    csv_filename = 'visualization/non_linear_mapping_data/Contrast/Contrast_poly_k_results.csv'
+    iq_metric = 'poly_k'
+    augmentation_type = 'Contrast'
+
+    print(f'CSV Filename: {csv_filename}')
+    plot_mean_std_from_csv(csv_file=csv_filename, augmentation_type=augmentation_type, iq_metric=iq_metric)

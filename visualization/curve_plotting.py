@@ -1,6 +1,4 @@
 import os
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 def plot_severity_vs_confidence(augmentation_type: str, data_cat: str = "mean"):
@@ -17,8 +15,3 @@ def plot_severity_vs_confidence(augmentation_type: str, data_cat: str = "mean"):
         sift_values = df[f"{data_cat}_sift"]
         return ssim_values, ncc_values, uiq_values, scc_values, sift_values
     return ssim_values, ncc_values, uiq_values, scc_values
-    
-
-
-if __name__ == "__main__":
-    plot_severity_vs_confidence("Brightness")
