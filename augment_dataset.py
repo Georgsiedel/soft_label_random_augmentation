@@ -355,7 +355,6 @@ if __name__ == "__main__":
     8. scc_metric
     9. sift_metric
     """
-
     # Create the transformations for preprocessing and augmentation
     transforms_preprocess, transforms_augmentation = create_transforms(random_erasing=False,
                                                                        random_cropping=True, 
