@@ -122,6 +122,7 @@ def create_transforms(
     dataset_name: str = "CIFAR10",
     seed: Optional[int] = None,
     individual_analysis: Optional[bool] = False,
+    mapping_approach: Optional[str] = "exact_model_accuracy",
 ) -> Optional[tuple]:
     """Creates preprocessing and augmentation transformations.
 
@@ -139,6 +140,8 @@ def create_transforms(
         transforms.RandomCrop(32, padding=4),       # For Tiny-ImageNet: 64 x 64; For CIFAR: 32 x 32
     ]
 
+    print(f"Calculating confidence with the mapping approach: {mapping_approach}\n")
+
     """Sequential Augmentations"""
     if aggressive_augmentation:
         if custom:
@@ -150,6 +153,7 @@ def create_transforms(
                     get_signed=augmentation_sign,
                     dataset_name=dataset_name,
                     individual_analysis=individual_analysis,
+                    mapping_approach=mapping_approach,
                 ))
         else:
             augmentations.extend([transforms.TrivialAugmentWide()])
@@ -326,8 +330,8 @@ def seed_worker():
 if __name__ == "__main__":
 
     # Set the batch size for the data loader
-    batch_size = 50
-    DATASET_NAME = "CIFAR100"
+    batch_size = 5000
+    DATASET_NAME = "CIFAR10"
 
     # Set the random seed for reproducibility
     g = torch.Generator()
@@ -338,15 +342,30 @@ if __name__ == "__main__":
     augmentation_severity = 15
     augmentation_sign = True
 
+    # Mapping approach for confidence calculation
+    """
+    Mapping Approaches:
+    1. exact_model_accuracy
+    2. smoothened_hvs
+    3. fixed_params
+    4. exact_hvs
+    5. ssim_metric
+    6. uiq_metric
+    7. ncc_metric
+    8. scc_metric
+    9. sift_metric
+    """
+
     # Create the transformations for preprocessing and augmentation
     transforms_preprocess, transforms_augmentation = create_transforms(random_erasing=False,
                                                                        random_cropping=True, 
-                                                                       aggressive_augmentation=True, 
+                                                                       aggressive_augmentation=False, 
                                                                        custom=True, 
                                                                        augmentation_name=augmentation_type, 
                                                                        augmentation_severity=augmentation_severity, 
                                                                        augmentation_sign=augmentation_sign, 
-                                                                       dataset_name=DATASET_NAME)
+                                                                       dataset_name=DATASET_NAME,
+                                                                       mapping_approach="fixed_params")
     
     print(transforms_augmentation)
 
@@ -365,6 +384,6 @@ if __name__ == "__main__":
     # Display a grid of images with labels and confidence scores
     classes = trainset.dataset.classes
     images, labels, confidences = next(iter(trainloader))
-    display_image_grid(images, labels, confidences, batch_size=batch_size, classes=classes)
+    # display_image_grid(images, labels, confidences, batch_size=batch_size, classes=classes)
     print(f"Confidence: {confidences}")
 

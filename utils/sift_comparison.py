@@ -22,13 +22,6 @@ def sift_operation(im1, im2, display_matches: bool = False):
         print(
             "Either the images are too different or lacking sufficient features for SIFT to detect"
         )
-        # resize = transforms.Resize(512)
-        # if descriptors1 is None:
-        #     im1_resize = resize(im1)
-        #     im1_resize.show()
-        # if descriptors2 is None:
-        #     im2_resize = resize(im2)
-        #     im2_resize.show()
         return 1
 
     bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
@@ -51,27 +44,3 @@ def sift_operation(im1, im2, display_matches: bool = False):
     return len(matches)
 
 
-def sift_correction_factor(original_image, augmented_image, display_matches: bool = False):
-    matches_reference = sift_operation(original_image, original_image)
-    matches_12 = sift_operation(original_image, augmented_image, display_matches)
-    correction_factor = matches_12 / matches_reference
-    return correction_factor
-
-
-if __name__ == "__main__":
-    im1_path = "/home/ekagra/Documents/GitHub/MasterArbeit/example/original_image.png"
-    im2_path = "/home/ekagra/Documents/GitHub/MasterArbeit/example/augmented_image.png"
-    im1 = Image.open(im1_path)
-    im2 = Image.open(im2_path)
-    # im1_gray = im1.convert("L")
-    # im2_gray = im2.convert("L")
-
-    # resize = transforms.Resize(512)
-    # im1 = resize(im1)
-    # im2 = resize(im2)
-
-    # matches = sift_operation(im1=im1_gray, im2=im2_gray, display_matches=True)
-    corr_fac = sift_correction_factor(
-        original_image=im1, augmented_image=im2, display_matches=True
-    )
-    print(f"Correction factor: {corr_fac}")
