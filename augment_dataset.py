@@ -1,15 +1,17 @@
 import torch
-import torchvision
-from functools import reduce
-from torchvision import datasets, transforms
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+from functools import reduce
 from typing import Optional
+
+import torchvision
+from torchvision import datasets, transforms
 
 from visualization.augmentations.trivial_augment import CustomTrivialAugmentWide
 from visualization.augmentations.random_crop import RandomCrop
 from visualization.augmentations.random_choice import RandomChoiceTransforms
 from visualization.augmentations.random_erasing import RandomErasing
+
 
 import random
 
@@ -100,12 +102,6 @@ class AugmentedDataset(torch.utils.data.Dataset):
             if augmentation_magnitude is not None:
                 return augment_x, y, [augmentation_magnitude, combined_confidence]
             return augment_x, y, combined_confidence
-        # elif self.robust_samples == 1:
-        #     im_tuple = (self.preprocess(x), augment(x))
-        #     return im_tuple, y
-        # elif self.robust_samples == 2:
-        #     im_tuple = (self.preprocess(x), augment(x), augment(x))
-        #     return im_tuple, y
 
     def __len__(self):
         return len(self.dataset)
@@ -127,9 +123,17 @@ def create_transforms(
     """Creates preprocessing and augmentation transformations.
 
     Args:
+        random_erasing (bool, optional): Flag to include random erasing in augmentations. Defaults to False.
         random_cropping (bool, optional): Flag to include random cropping in augmentations. Defaults to False.
         aggressive_augmentation (bool, optional): Flag to include aggressive augmentations. Defaults to False.
         custom (bool, optional): Flag to use custom trivial augmentations. Defaults to False.
+        augmentation_name (str, optional): Name of the custom augmentation (if applicable).
+        augmentation_severity (int, optional): Severity level for custom augmentations. Defaults to 0.
+        augmentation_sign (bool, optional): Flag to determine if augmentation should be signed. Defaults to False.
+        dataset_name (str, optional): Name of the dataset. Defaults to "CIFAR10".
+        seed (int, optional): Random seed for reproducibility.
+        individual_analysis (bool, optional): Whether to perform individual analysis of augmentations.
+        mapping_approach (str, optional): Approach for mapping confidence. Defaults to "exact_model_accuracy".
 
     Returns:
         Optional[tuple]: The preprocessing and augmentation transformations.
@@ -202,15 +206,17 @@ def load_data(
     dataset_split: Optional[int] = "full",
     dataset_name: Optional[str] = "CIFAR10",
 ) -> Optional[tuple]:
-    """Loads and prepares the CIFAR-10 dataset with specified transformations.
+    """Loads and prepares a dataset (CIFAR-10, CIFAR-100, or Tiny-ImageNet) with specified transformations.
 
     Args:
         transforms_preprocess (transforms.Compose): Preprocessing transformations.
         transforms_augmentation (transforms.Compose, optional): Augmentation transformations.
-        robust_samples (int, optional): Number of robust samples to include.
+        dataset_split (int or str, optional): Number of samples to retain for faster testing. 
+            If "full", the entire dataset is used.
+        dataset_name (str, optional): Name of the dataset to load. Supports "CIFAR10", "CIFAR100", and "Tiny-ImageNet".
 
     Returns:
-        Optional[tuple]: The training and testing datasets.
+        Optional[tuple]: The processed training and testing datasets.
     """
 
     if dataset_name == "CIFAR10":
@@ -357,8 +363,8 @@ if __name__ == "__main__":
     """
     # Create the transformations for preprocessing and augmentation
     transforms_preprocess, transforms_augmentation = create_transforms(random_erasing=False,
-                                                                       random_cropping=True, 
-                                                                       aggressive_augmentation=False, 
+                                                                       random_cropping=False, 
+                                                                       aggressive_augmentation=True, 
                                                                        custom=True, 
                                                                        augmentation_name=augmentation_type, 
                                                                        augmentation_severity=augmentation_severity, 

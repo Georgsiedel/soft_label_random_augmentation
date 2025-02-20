@@ -6,6 +6,17 @@ from torchvision import transforms
 
 
 def sift_operation(im1, im2, display_matches: bool = False):
+    """
+    Performs SIFT (Scale-Invariant Feature Transform) on two images and finds matching keypoints.
+
+    Args:
+        im1 (PIL.Image or torch.Tensor): First input image.
+        im2 (PIL.Image or torch.Tensor): Second input image.
+        display_matches (bool, optional): Whether to display the matched keypoints. Defaults to False.
+
+    Returns:
+        int: Number of matching keypoints found between the two images.
+    """
     if not isinstance(im1, Image.Image) or not isinstance(im2, Image.Image):
         pil = transforms.ToPILImage()
         im1 = pil(im1)
