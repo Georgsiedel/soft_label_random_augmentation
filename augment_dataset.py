@@ -2,18 +2,25 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from functools import reduce
-from typing import Optional
+from typing import Optional, List
 
 import torchvision
 from torchvision import datasets, transforms
 
-from visualization.augmentations.trivial_augment import CustomTrivialAugmentWide
-from visualization.augmentations.random_crop import RandomCrop
-from visualization.augmentations.random_choice import RandomChoiceTransforms
-from visualization.augmentations.random_erasing import RandomErasing
-
-
+from augmentations.trivial_augment import CustomTrivialAugmentWide
+from augmentations.random_crop import RandomCrop
+from augmentations.random_erasing import RandomErasing
 import random
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError(f'Error: Boolean value expected for argument {v}.')
 
 class AugmentedDataset(torch.utils.data.Dataset):
     """Dataset wrapper to perform augmentations and allow robust loss functions.
@@ -22,8 +29,6 @@ class AugmentedDataset(torch.utils.data.Dataset):
         dataset (torch.utils.data.Dataset): The base dataset to augment.
         transforms_preprocess (transforms.Compose): Transformations for preprocessing.
         transforms_augmentation (transforms.Compose): Transformations for augmentation.
-        transforms_generated (transforms.Compose): Transformations for generated samples.
-        robust_samples (int): Number of robust samples to include.
     """
 
     def __init__(
@@ -31,18 +36,12 @@ class AugmentedDataset(torch.utils.data.Dataset):
         dataset,
         transforms_preprocess,
         transforms_augmentation,
-        transforms_generated=None,
-        robust_samples=0,
     ):
         if dataset is not None:
             self.dataset = dataset
 
         self.preprocess = transforms_preprocess
         self.transforms_augmentation = transforms_augmentation
-        self.transforms_generated = (
-            transforms_generated if transforms_generated else transforms_augmentation
-        )
-        self.robust_samples = robust_samples
         self.original_length = getattr(dataset, "original_length", None)
         self.generated_length = getattr(dataset, "generated_length", None)
 
@@ -72,16 +71,12 @@ class AugmentedDataset(torch.utils.data.Dataset):
         confidences = None
         augmentation_magnitude = None
         combined_confidence = torch.tensor(1.0, dtype=torch.float32)
-        original = True  # for now "original" is set to True rather than returning from base_dataset
 
-        augment = (
-            self.transforms_augmentation
-            if original == True
-            else self.transforms_generated
-        )
+        augment = self.transforms_augmentation
 
         if isinstance(x, tuple):
             raise ValueError("Tuple not supported")
+        
         augment_x = augment(x)
 
         if isinstance(augment_x, tuple):
@@ -98,21 +93,21 @@ class AugmentedDataset(torch.utils.data.Dataset):
         if not isinstance(augment_x, torch.Tensor):
             augment_x = self.preprocess(augment_x)
 
-        if self.robust_samples == 0:
-            if augmentation_magnitude is not None:
-                return augment_x, y, [augmentation_magnitude, combined_confidence]
-            return augment_x, y, combined_confidence
+        if augmentation_magnitude is not None:
+            return augment_x, y, [augmentation_magnitude, combined_confidence]
+        return augment_x, y, combined_confidence
 
     def __len__(self):
         return len(self.dataset)
 
 
 def create_transforms(
-    random_erasing: bool = False,
-    random_cropping: bool = False,
-    aggressive_augmentation: bool = False,
-    custom: bool = False,
-    augmentation_name: str = None,
+    trivial_augment: int = 0,
+    random_erasing: int = 0,
+    random_erasing_p: float = 0.3,
+    random_erasing_max_scale: float = 0.33,
+    random_cropping: int = 0,
+    selected_transforms: Optional[List[str]] = None,
     augmentation_severity: int = 0,
     augmentation_sign: bool = False,
     dataset_name: str = "CIFAR10",
@@ -123,10 +118,9 @@ def create_transforms(
     """Creates preprocessing and augmentation transformations.
 
     Args:
-        random_erasing (bool, optional): Flag to include random erasing in augmentations. Defaults to False.
-        random_cropping (bool, optional): Flag to include random cropping in augmentations. Defaults to False.
-        aggressive_augmentation (bool, optional): Flag to include aggressive augmentations. Defaults to False.
-        custom (bool, optional): Flag to use custom trivial augmentations. Defaults to False.
+    trivial_augment (int): 0: no TA; 1: standard TA; 2: soft TA.
+        random_erasing (int): 0: no RE; 1: standard RE; 2: soft RE.
+        random_cropping  (int): 0: no RC; 1: standard RC; 2: soft RC.
         augmentation_name (str, optional): Name of the custom augmentation (if applicable).
         augmentation_severity (int, optional): Severity level for custom augmentations. Defaults to 0.
         augmentation_sign (bool, optional): Flag to determine if augmentation should be signed. Defaults to False.
@@ -138,63 +132,44 @@ def create_transforms(
     Returns:
         Optional[tuple]: The preprocessing and augmentation transformations.
     """
-    t = [transforms.ToTensor()]
     augmentations = [
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomCrop(32, padding=4),       # For Tiny-ImageNet: 64 x 64; For CIFAR: 32 x 32
+        transforms.RandomHorizontalFlip()       # For Tiny-ImageNet: 64 x 64; For CIFAR: 32 x 32
     ]
 
-    print(f"Calculating confidence with the mapping approach: {mapping_approach}\n")
+    if random_cropping == 1:
+        augmentations.append(transforms.RandomCrop(32, padding=4))
+    elif random_cropping == 2:
+        augmentations.append(RandomCrop(dataset_name=dataset_name, custom=True, seed=seed))
 
-    """Sequential Augmentations"""
-    if aggressive_augmentation:
-        if custom:
-            augmentations.append(
-                CustomTrivialAugmentWide(
-                    custom=custom,
-                    augmentation_name=augmentation_name,
+    if trivial_augment == 1:
+        augmentations.append(CustomTrivialAugmentWide(
+                    soft=False,
                     severity=augmentation_severity,
+                    selected_transforms=selected_transforms,
                     get_signed=augmentation_sign,
                     dataset_name=dataset_name,
                     individual_analysis=individual_analysis,
                     mapping_approach=mapping_approach,
                 ))
-        else:
-            augmentations.extend([transforms.TrivialAugmentWide()])
-    if random_cropping:
-        if aggressive_augmentation:
-            augmentations.pop(-2)       # -1, -2(if sequential)
-        else:
-            augmentations.pop(-1)
-        augmentations.append(RandomCrop(dataset_name=dataset_name, custom=custom, seed=seed))
-    
-    if random_erasing:
-        augmentations.append(transforms.TrivialAugmentWide())
-        augmentations.append(RandomErasing(p=0.3, scale=(0.02, 0.33), ratio=(0.3, 3.3), value='random', custom=custom, dataset_name=dataset_name))
-    """Sequential Augmentations"""
-        
+    elif trivial_augment == 2:
+        augmentations.append(CustomTrivialAugmentWide(
+                    soft=True,
+                    severity=augmentation_severity,
+                    selected_transforms=selected_transforms,
+                    get_signed=augmentation_sign,
+                    dataset_name=dataset_name,
+                    individual_analysis=individual_analysis,
+                    mapping_approach=mapping_approach,
+                ))
 
-    """Parallel Augmentations"""
-    # custom_trivial_augment = CustomTrivialAugmentWide(
-    #     custom=custom,
-    #     augmentation_name=augmentation_name,
-    #     severity=augmentation_severity,
-    #     get_signed=augmentation_sign,
-    #     dataset_name=dataset_name,
-    # )
-    # random_crop_augment = RandomCrop(dataset_name=dataset_name, custom=custom)
+        print(f"Calculating confidence with the mapping approach: {mapping_approach}\n")
 
-    # if aggressive_augmentation:
-    #     augmentations.append(
-    #         RandomChoiceTransforms(
-    #             [transforms.TrivialAugmentWide(), random_crop_augment], [0.85, 0.15]
-    #         )
-    #     )
-    # if random_cropping:
-    #     augmentations.pop(-2)        # -1, -2(if sequential)
-    """Parallel Augmentations"""
+    if random_erasing == 1:
+        augmentations.append(RandomErasing(p=random_erasing_p, scale=(0.02, random_erasing_max_scale), ratio=(0.3, 3.3), value='random', custom=False, dataset_name=dataset_name))
+    elif random_erasing == 2:
+        augmentations.append(RandomErasing(p=random_erasing_p, scale=(0.02, random_erasing_max_scale), ratio=(0.3, 3.3), value='random', custom=True, dataset_name=dataset_name))
 
-    transforms_preprocess = transforms.Compose(t)
+    transforms_preprocess = transforms.ToTensor()
     transforms_augmentation = transforms.Compose(augmentations)
 
     return transforms_preprocess, transforms_augmentation
@@ -203,7 +178,6 @@ def create_transforms(
 def load_data(
     transforms_preprocess,
     transforms_augmentation=None,
-    dataset_split: Optional[int] = "full",
     dataset_name: Optional[str] = "CIFAR10",
 ) -> Optional[tuple]:
     """Loads and prepares a dataset (CIFAR-10, CIFAR-100, or Tiny-ImageNet) with specified transformations.
@@ -221,67 +195,30 @@ def load_data(
 
     if dataset_name == "CIFAR10":
         # CIFAR-10
-        base_trainset = datasets.CIFAR10(root="./data/train", train=True, download=True)
-        base_testset = datasets.CIFAR10(root="./data/test", train=False, download=True)
+        base_trainset = datasets.CIFAR10(root="../data", train=True, download=True, transform=transforms_preprocess)
+        base_testset = datasets.CIFAR10(root="../data", train=False, download=True, transform=transforms_preprocess)
     elif dataset_name == "CIFAR100":
         # CIFAR-100
-        base_trainset = datasets.CIFAR100(root="./data/train", train=True, download=True)
-        base_testset = datasets.CIFAR100(root="./data/test", train=False, download=True)
-    elif dataset_name == "Tiny-ImageNet":
-        base_trainset = datasets.ImageFolder(root="./data/tiny-imagenet-200/new_train")
-        base_testset = datasets.ImageFolder(root="./data/tiny-imagenet-200/new_test")
+        base_trainset = datasets.CIFAR100(root="../data", train=True, download=True, transform=transforms_preprocess)
+        base_testset = datasets.CIFAR100(root="../data", train=False, download=True, transform=transforms_preprocess)
+    elif dataset_name == "TinyImageNet":
+        base_trainset = datasets.ImageFolder(root="../data/TinyImageNet/train", transform=transforms_preprocess)
+        base_testset = datasets.ImageFolder(root="../data/TinyImageNet//val", transform=transforms_preprocess)
     else:
         raise ValueError(f"Dataset {dataset_name} not supported")
 
-    """MODIFICATION: Truncate the dataset to a smaller size for faster testing"""
-    if dataset_split != "full":
-        truncated_trainset = torch.utils.data.Subset(
-            base_trainset, range(dataset_split)
-        )
-        truncated_testset = torch.utils.data.Subset(base_testset, range(dataset_split))
-    else:
-        truncated_trainset = base_trainset
-        truncated_testset = base_testset
-    """MODIFICATION: Truncate the dataset to a smaller size for faster testing"""
 
-    if transforms_augmentation is not None:
-        trainset = AugmentedDataset(
-            dataset=truncated_trainset,
-            transforms_preprocess=transforms_preprocess,
-            transforms_augmentation=transforms_augmentation,
-        )
+    trainset = AugmentedDataset(
+        dataset=base_trainset,
+        transforms_preprocess=transforms_preprocess,
+        transforms_augmentation=transforms_augmentation,
+    )
 
-        testset = AugmentedDataset(
-            dataset=truncated_testset,
-            transforms_preprocess=transforms_preprocess,
-            transforms_augmentation=transforms_augmentation,
-        )
-    elif base_trainset.__class__.__name__ == "CIFAR10":
-        trainset = datasets.CIFAR10(
-            root="./data/train",
-            train=True,
-            download=True,
-            transform=transforms_preprocess,
-        )
-        testset = datasets.CIFAR10(
-            root="./data/test",
-            train=False,
-            transform=transforms_preprocess,
-            download=True,
-        )
-    elif base_trainset.__class__.__name__ == "CIFAR100":
-        trainset = datasets.CIFAR100(
-            root="./data/train",
-            train=True,
-            download=True,
-            transform=transforms_preprocess,
-        )
-        testset = datasets.CIFAR100(
-            root="./data/test",
-            train=False,
-            transform=transforms_preprocess,
-            download=True,
-        )
+    testset = AugmentedDataset(
+        dataset=base_testset,
+        transforms_preprocess=transforms_preprocess,
+        transforms_augmentation=transforms_augmentation,
+    )
 
     return trainset, testset
 
@@ -333,20 +270,35 @@ def seed_worker():
     torch.seed(worker_seed)
 
 
+
+import argparse
+parser = argparse.ArgumentParser(description='Soft Augmentations')
+parser.add_argument('--individual_analysis', type=str2bool, nargs='?', const=False, default=False,
+                    help='individual transforms of TrivialAugment')
+parser.add_argument('--seed', default=0, type=int, help='seed number')
+parser.add_argument('--selected_transforms', type=str, nargs='+', default=None,
+                    help="List of TA transforms for individual analysis, will be applied if given")
+parser.add_argument('--augmentation_sign', type=str2bool, nargs='?', const=False, default=False,
+                    help='individual transforms of TrivialAugment')
+parser.add_argument('--augmentation_severity', default=-1, type=int, help='severity for an individual TA analysis')
+
+args = parser.parse_args()
+
+
 if __name__ == "__main__":
 
     # Set the batch size for the data loader
-    batch_size = 5000
+    batch_size = 256
     DATASET_NAME = "CIFAR10"
 
     # Set the random seed for reproducibility
     g = torch.Generator()
-    g.manual_seed(1)
+    g.manual_seed(args.seed)
 
-    # For individual augmentation analysis
-    augmentation_type = "Brightness"
-    augmentation_severity = 15
-    augmentation_sign = True
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    random.seed(args.seed)
 
     # Mapping approach for confidence calculation
     """
@@ -362,14 +314,17 @@ if __name__ == "__main__":
     9. sift_metric
     """
     # Create the transformations for preprocessing and augmentation
-    transforms_preprocess, transforms_augmentation = create_transforms(random_erasing=False,
-                                                                       random_cropping=False, 
-                                                                       aggressive_augmentation=True, 
-                                                                       custom=True, 
-                                                                       augmentation_name=augmentation_type, 
-                                                                       augmentation_severity=augmentation_severity, 
-                                                                       augmentation_sign=augmentation_sign, 
+    transforms_preprocess, transforms_augmentation = create_transforms(random_cropping=1,
+                                                                       trivial_augment=0,
+                                                                       random_erasing=0,
+                                                                       random_erasing_p=0.3,
+                                                                       random_erasing_max_scale=0.33,
+                                                                       selected_transforms=args.selected_transforms,
+                                                                       augmentation_severity=args.augmentation_severity, 
+                                                                       augmentation_sign=args.augmentation_sign, 
                                                                        dataset_name=DATASET_NAME,
+                                                                       seed=args.seed,
+                                                                       individual_analysis=args.individual_analysis,
                                                                        mapping_approach="fixed_params")
     
     print(transforms_augmentation)

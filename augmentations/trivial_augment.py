@@ -6,7 +6,6 @@ import os
 import pandas as pd
 
 from utils import comparison_metrics
-from visualization.augmentations.random_crop import RandomCrop
 
 import math
 from typing import Dict, List, Optional, Tuple
@@ -99,25 +98,25 @@ def _apply_op(
         pass
     else:
         raise ValueError(f"The provided operator {op_name} is not recognized.")
-    return im, {op_name: magnitude}
+    return im
 
 
 class CustomTrivialAugmentWide(torch.nn.Module):
     def __init__(
         self,
-        custom: bool = False,
+        soft: bool = False,
         num_magnitude_bins: int = 31,
         interpolation: InterpolationMode = InterpolationMode.NEAREST,
         fill: Optional[List[float]] = None,
         severity: int = 0,
-        augmentation_name: str = None,
+        selected_transforms: Optional[List[str]] = None,
         get_signed: bool = False,
         dataset_name: str = "CIFAR10",
         individual_analysis: bool = False,
         mapping_approach: str = "exact",
     ):
         super().__init__()
-        self.custom = custom
+        self.soft = soft
         self.num_magnitude_bins = num_magnitude_bins
         self.interpolation = interpolation
         self.fill = fill
@@ -126,10 +125,9 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         self.mapping_approach = mapping_approach
 
         """MODIFICATION: Add severity"""
-        if self.individual_analysis:
-            self.severity = severity
-            self.augmentation_name = augmentation_name
-            self.get_signed = get_signed
+        self.severity = severity
+        self.selected_transforms = selected_transforms
+        self.get_signed = get_signed
         self.k = 2
         """MODIFICATION: Add severity"""
 
@@ -137,77 +135,44 @@ class CustomTrivialAugmentWide(torch.nn.Module):
             self.chance = 1 / 10
         elif dataset_name == "CIFAR100":
             self.chance = 1 / 100
-        elif dataset_name == "Tiny-ImageNet":
+        elif dataset_name == "TinyImageNet":
             self.chance = 1 / 200
         else:
             raise ValueError(f"Dataset name {dataset_name} not supported")
 
-    def _augmentation_space(self, num_bins: int) -> Dict[str, Tuple[Tensor, bool]]:
-        if not self.individual_analysis:
-            return {
-                "Identity": (torch.tensor(0.0), False),
-                "ShearX": (torch.linspace(0.0, 0.99, num_bins), True),
-                "ShearY": (torch.linspace(0.0, 0.99, num_bins), True),
-                "TranslateX": (torch.linspace(0.0, 32.0, num_bins), True),
-                "TranslateY": (torch.linspace(0.0, 32.0, num_bins), True),
-                "Rotate": (torch.linspace(0.0, 135.0, num_bins), True),
-                "Brightness": (torch.linspace(0.0, 0.99, num_bins), True),
-                "Color": (torch.linspace(0.0, 0.99, num_bins), True),
-                "Contrast": (torch.linspace(0.0, 0.99, num_bins), True),
-                "Sharpness": (torch.linspace(0.0, 0.99, num_bins), True),
-                "Posterize": (
-                    8 - (torch.arange(num_bins) / ((num_bins - 1) / 6)).round().int(),
-                    False,
-                ),
-                "Solarize": (torch.linspace(255.0, 0.0, num_bins), False),
-                "AutoContrast": (torch.tensor(0.0), False),
-                "Equalize": (torch.tensor(0.0), False),
-            }
+    def _augmentation_space(self, num_bins: int, selected_transforms: Optional[List[str]] = None) -> Dict[str, Tuple[Tensor, bool]]:
+        # Define the full augmentation space
+        augmentation_space = {
+            "Identity": (torch.tensor(0.0), False),
+            "ShearX": (torch.linspace(0.0, 0.99, num_bins), True),
+            "ShearY": (torch.linspace(0.0, 0.99, num_bins), True),
+            "TranslateX": (torch.linspace(0.0, 32.0, num_bins), True),
+            "TranslateY": (torch.linspace(0.0, 32.0, num_bins), True),
+            "Rotate": (torch.linspace(0.0, 135.0, num_bins), True),
+            "Brightness": (torch.linspace(0.0, 0.99, num_bins), True),
+            "Color": (torch.linspace(0.0, 0.99, num_bins), True),
+            "Contrast": (torch.linspace(0.0, 0.99, num_bins), True),
+            "Sharpness": (torch.linspace(0.0, 0.99, num_bins), True),
+            "Posterize": (
+                8 - (torch.arange(num_bins) / ((num_bins - 1) / 6)).round().int(),
+                False,
+            ),
+            "Solarize": (torch.linspace(255.0, 0.0, num_bins), False),
+            "AutoContrast": (torch.tensor(0.0), False),
+            "Equalize": (torch.tensor(0.0), False),
+        }
 
-        # print(f'augmentation_name: {self.augmentation_name}\tseverity: {self.severity}')
-        else:
-            if self.augmentation_name == "Identity":
-                return {"Identity": (torch.tensor(0.0), False)}
-            elif self.augmentation_name == "ShearX":
-                return {"ShearX": (torch.linspace(0.0, 0.99, num_bins), True)}
-            elif self.augmentation_name == "ShearY":
-                return {"ShearY": (torch.linspace(0.0, 0.99, num_bins), True)}
-            elif self.augmentation_name == "TranslateX":
-                return {"TranslateX": (torch.linspace(0.0, 32.0, num_bins), True)}
-            elif self.augmentation_name == "TranslateY":
-                return {"TranslateY": (torch.linspace(0.0, 32.0, num_bins), True)}
-            elif self.augmentation_name == "Rotate":
-                return {"Rotate": (torch.linspace(0.0, 135.0, num_bins), True)}
-            elif self.augmentation_name == "Brightness":
-                return {"Brightness": (torch.linspace(0.0, 0.99, num_bins), True)}
-            elif self.augmentation_name == "Color":
-                return {"Color": (torch.linspace(0.0, 0.99, num_bins), True)}
-            elif self.augmentation_name == "Contrast":
-                return {"Contrast": (torch.linspace(0.0, 0.99, num_bins), True)}
-            elif self.augmentation_name == "Sharpness":
-                return {"Sharpness": (torch.linspace(0.0, 0.99, num_bins), True)}
-            elif self.augmentation_name == "Posterize":
-                return {
-                    "Posterize": (
-                        8 - (torch.arange(num_bins) / ((num_bins - 1) / 6)).round().int(),
-                        False,
-                    )
-                }
-            elif self.augmentation_name == "Solarize":
-                return {"Solarize": (torch.linspace(255.0, 0.0, num_bins), False)}
-            elif self.augmentation_name == "AutoContrast":
-                return {"AutoContrast": (torch.tensor(0.0), False)}
-            elif self.augmentation_name == "Equalize":
-                return {"Equalize": (torch.tensor(0.0), False)}
-            else:
-                raise ValueError(f"The provided operator {self.augmentation_name} is not recognized.")
+        if selected_transforms is None:
+            # Return the full dictionary if no specific transforms are selected
+            return augmentation_space
+        
+        # Validate selected_transforms to ensure they're in the augmentation space
+        invalid_transforms = [t for t in selected_transforms if t not in augmentation_space]
+        if invalid_transforms:
+            raise ValueError(f"Invalid transform names provided: {invalid_transforms}")
 
-    def forward(self, im: torch.Tensor) -> Tensor:
-        # if self.custom:
-        augment_im, augment_info = self.apply_custom_augmentation(im)
-        return augment_im, augment_info
-        # else:
-        #     return self.apply_standard_augmentation(im)
+        # Return a subset of the augmentation space based on the selected transforms
+        return {key: augmentation_space[key] for key in selected_transforms}
 
     def model_accuracy_mapping(self, augmentation_magnitude: Optional[float], augmentation_type: Optional[str], root_path: Optional[str] = "/kaggle/working/MasterArbeit") -> Optional[float]:
         
@@ -224,6 +189,20 @@ class CustomTrivialAugmentWide(torch.nn.Module):
             mag = augmentation_magnitude_list[i]
             if round(mag, 5) == round(augmentation_magnitude, 5):
                 return model_accuracy_list[i], i
+            
+    def compute_visibility(self, dim1: int, dim2: int, tx: float, ty: float) -> float:
+        """Computes the visibility of the cropped uimage within the background.
+
+        Args:
+            dim1 (int): Height of the image.
+            dim2 (int): Width of the image.
+            tx (int): Horizontal offset.
+            ty (int): Vertical offset.
+
+        Returns:
+            float: Visibility ratio of the cropped image.
+        """
+        return (dim1 - abs(tx)) * (dim2 - abs(ty)) / (dim1 * dim2)
 
     def apply_standard_augmentation(
         self, im: Tensor
@@ -243,7 +222,12 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         magnitudes, signed = op_meta[op_name]
 
         """MODIFCATION: Set magnitude and remove signed"""
-        if not self.individual_analysis:
+        if self.severity != -1:
+            if magnitudes.ndim > 0:
+                magnitude = float(magnitudes[self.severity].item())
+            else:
+                magnitude = 0.0
+        else:
             magnitude = (
                 float(
                     magnitudes[
@@ -253,34 +237,26 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if magnitudes.ndim > 0
                 else 0.0
             )
-            if signed and torch.randint(2, (1,)):
+        
+        if self.get_signed:
+            if self.get_signed and op_name not in ["Solarize", "Posterize"]:
                 magnitude *= -1.0
         else:
-            if magnitudes.ndim > 0:
-                magnitude = float(magnitudes[self.severity].item())
-            else:
-                magnitude = 0.0
-            if self.get_signed and op_name not in ["Solarize", "Posterize"]:
+            if signed and torch.randint(2, (1,)):
                 magnitude *= -1.0
         """MODIFICATION: Set magnitude and remove signed"""
 
-        # return _apply_op(
-        #     img, op_name, magnitude, interpolation=self.interpolation, fill=fill
-        # )
-
-        im, aug_info = _apply_op(
+        im = _apply_op(
             im, op_name, magnitude, fill=fill, interpolation=self.interpolation
         )
-        return im, aug_info
+
+        return im, op_name, magnitude
 
     def apply_custom_augmentation(self, im: Tensor) -> Tuple[Tensor, List[float]]:
-        augment_im, augment_info = self.apply_standard_augmentation(im)
-        augmentation_type = next(iter(augment_info.keys()))
-        augmentation_magnitude = augment_info[augmentation_type]
-        random_crop = RandomCrop()
+        augment_im, augmentation_type, augmentation_magnitude = self.apply_standard_augmentation(im)
         confidence_aa = 1.0  # Default value
 
-        if self.custom == False:
+        if self.soft == False:
             # print(f"\nAugmentation info: {augment_info}\tconf: {confidence_aa}\n")
             return augment_im, [augmentation_magnitude, torch.tensor(confidence_aa)]
         
@@ -290,7 +266,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         contrast_hvs = [0.32, 0.32, 0.64254054, 0.96603963, 0.96734732, 0.96865501, 0.9699627, 0.9712704, 0.97257809, 0.97388578, 0.97519347, 0.97650117, 0.97780886, 0.97911655, 0.98042424, 0.98173193, 0.98303963, 0.98434732, 0.98565501, 0.98696271, 0.9882704, 0.98957809, 0.99088578, 0.99219347, 0.99350117, 0.99480886, 0.99611655, 0.99742424, 0.99873194, 1., 1.]
         """Performance data obtained from available HVS"""
 
-        dat = self._augmentation_space(self.num_magnitude_bins)
+        dat = self._augmentation_space(self.num_magnitude_bins, selected_transforms=self.selected_transforms)
 
         if augmentation_type in ['Identity', 'AutoContrast', 'Equalize', 'Invert']:
             augmentation_idx = 0
@@ -337,7 +313,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 elif self.mapping_approach=="other":
                     """Mapping function from Translation HVS"""
                     dim1, dim2 = im.size[0], im.size[1]
-                    visibility = random_crop.compute_visibility(
+                    visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0., ty=augmentation_magnitude
                     )
                     k = 2
@@ -364,7 +340,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 elif self.mapping_approach=="other":
                     """Mapping function from Translation HVS"""
                     dim1, dim2 = im.size[0], im.size[1]
-                    visibility = random_crop.compute_visibility(
+                    visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0., ty=augmentation_magnitude
                     )
                     k = 2
@@ -380,7 +356,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 elif self.mapping_approach=="smoothened_hvs":
                     """Mapping function from Translation HVS"""
                     dim1, dim2 = im.size[0], im.size[1]
-                    visibility = random_crop.compute_visibility(
+                    visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=augmentation_magnitude, ty=0
                     )
                     k = 2               # 2, 4
@@ -389,7 +365,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 elif self.mapping_approach=="fixed_params":
                     """Fixed Parameters"""
                     dim1, dim2 = im.size[0], im.size[1]
-                    visibility = random_crop.compute_visibility(
+                    visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=augmentation_magnitude, ty=0
                     )
                     confidence_aa = 1 - (1 - self.chance) * (1 - visibility) ** self.k
@@ -406,7 +382,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 elif self.mapping_approach=="smoothened_hvs":
                     """Mapping function from Translation HVS"""
                     dim1, dim2 = im.size[0], im.size[1]
-                    visibility = random_crop.compute_visibility(
+                    visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0, ty=augmentation_magnitude
                     )
                     k = 2                                   # 2, 4
@@ -415,7 +391,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 elif self.mapping_approach=="fixed_params":
                     """Fixed Parameters"""
                     dim1, dim2 = im.size[0], im.size[1]
-                    visibility = random_crop.compute_visibility(
+                    visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0, ty=augmentation_magnitude
                     )
                     confidence_aa = 1 - (1 - self.chance) * (1 - visibility) ** self.k
@@ -589,25 +565,19 @@ class CustomTrivialAugmentWide(torch.nn.Module):
             np.where(confidence_aa < self.chance, self.chance, confidence_aa)
         )
 
-        if self.dataset_name=="Tiny-ImageNet":
-            to_tensor = transforms.Compose([transforms.ToTensor()])
-            augment_im = to_tensor(augment_im)
+        #if self.dataset_name=="TinyImageNet":
+        #    to_tensor = transforms.Compose([transforms.ToTensor()])
+        #    augment_im = to_tensor(augment_im)
 
         # print(f"Trivial augment applied: Augmentation info: {augment_info}, conf: {confidence_aa}")
         if self.individual_analysis:
             return augment_im, [augmentation_magnitude, confidence_aa]
         return augment_im, confidence_aa
 
-    def __call__(
-        self, im: Optional[Image.Image]
-    ) -> Optional[Tuple[Image.Image, List[float]]]:
-        augment_im, augment_info = self.apply_custom_augmentation(im)
-        return augment_im, augment_info
-
     def __repr__(self):
         s = (
             f"{self.__class__.__name__}("
-            f"custom={self.custom}"
+            f"soft={self.soft}"
             f", num_magnitude_bins={self.num_magnitude_bins}"
             f", interpolation={self.interpolation}"
             f", fill={self.fill}"
@@ -615,3 +585,8 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         )
 
         return s
+    
+    def forward(self, im: torch.Tensor) -> Tensor:
+        # if self.soft:
+        augment_im, augment_info = self.apply_custom_augmentation(im)
+        return augment_im, augment_info

@@ -58,6 +58,7 @@ class RandomErasing(torch.nn.Module):
         self.ratio = ratio
         self.value = value
         self.inplace = inplace
+        
         """MODIFICATION"""
         self.dataset_name = dataset_name
         self.k = 1
