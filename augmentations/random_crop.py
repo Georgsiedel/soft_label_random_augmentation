@@ -23,9 +23,8 @@ class RandomCrop:
         bg_crop: float = 1.0,
         sigma_crop: float = 10,
         dataset_name: str = "CIFAR10",
-        custom: bool = False,
-        seed: Optional[int] = None
-    ):
+        custom: bool = False    
+        ):
         if dataset_name == "CIFAR10":
             self.n_class = 10
         elif dataset_name == "CIFAR100":
@@ -39,7 +38,6 @@ class RandomCrop:
         self.sigma_crop = sigma_crop
         self.bg_crop = bg_crop
         self.custom = custom
-        self.seed = seed
 
     def draw_offset(
         self,
@@ -57,9 +55,6 @@ class RandomCrop:
         Returns:
             int: The drawn offset within the limit
         """
-        if self.seed is not None:
-            torch.seed(self.seed)
-
         for _ in range(n):
             x = torch.randn((1)) * sigma
             if abs(x) <= limit:
@@ -80,41 +75,29 @@ class RandomCrop:
         """
         return (dim1 - abs(tx)) * (dim2 - abs(ty)) / (dim1 * dim2)
 
-    def __call__(self, image: Optional[Image.Image]) -> Optional[tuple]:
+    def __call__(self, image: tuple) -> tuple:
         """Applies the random crop transformation to the given image.
 
         Args:
-            image (Optional[Image.Image]): Input image or a tuple containing the image
-            and an additional confidence value.
+            image: tuple containing Tensor image, TA magnitude, confidence.
 
         Returns:
-            Optional[tuple]: The cropped image and the computed confidence values.
+            tuple containing cropped Tensor image, TA magnitude, confidences tuple.
         """
-        confidence_aa = None
+        tensor_image = image[0]
+        if not isinstance(tensor_image, torch.Tensor):
+            raise TypeError(f"Expected Tensor Image but got {type(tensor_image)}")
 
-        if isinstance(image, tuple) and len(image) == 2:
-            if isinstance(image[1], float):
-                confidence_aa = image[1]
-            elif isinstance(image[1], torch.Tensor):
-                confidence_aa = image[1].item()
-            image = image[0]
+        confidence_aa = image[2]
 
-        to_tensor = transforms.ToTensor()
-        if isinstance(image, tuple):
-            raise TypeError(f"Expected PIL Image but got {type(image)}")
-        image = to_tensor(image)
-        dim1, dim2 = image.size(1), image.size(2)
-
-        # setting manual seed for consistent results
-        if self.seed is not None:
-            torch.seed(self.seed)
+        dim1, dim2 = tensor_image.shape[1], tensor_image.shape[2]
 
         # Create background
         bg = (
             torch.zeros((3, dim1 * 3, dim2 * 3)) *
             self.bg_crop * torch.randn((3, 1, 1))
         )
-        bg[:, dim1: dim1 * 2, dim2: dim2 * 2] = image  # Put image at the center
+        bg[:, dim1: dim1 * 2, dim2: dim2 * 2] = tensor_image  # Put image at the center
 
         # calculate random offsets.
         ty, tx = self.draw_offset(self.sigma_crop, dim1), self.draw_offset(
@@ -128,9 +111,6 @@ class RandomCrop:
         # crop the image
         cropped_image = bg[:, top:bottom, left:right]
 
-        to_pil = transforms.ToPILImage()
-        cropped_image = to_pil(cropped_image)
-
         if self.custom:
             # compute visibility and confidence score
             visibility = self.compute_visibility(dim1, dim2, tx, ty)
@@ -139,13 +119,6 @@ class RandomCrop:
             )  # The non-linear function
             # print(f"Random crop applied: tx={tx}, ty={ty}, visibility={visibility}, confidence={confidence_rc}")
         else:
-            confidence_rc = torch.tensor(1.0)
-        if confidence_aa is not None:
-            # Sequential application of the RandomCrop
-            confidences = (confidence_aa, confidence_rc)
-            return cropped_image, confidences
-        else:
-            # Parallel application of the RandomCrop
-            if isinstance(confidence_rc, float):
-                confidence_rc = torch.tensor(confidence_rc)
-            return cropped_image, confidence_rc
+            confidence_rc = 1.0
+        
+        return cropped_image, image[1], (confidence_aa, confidence_rc)

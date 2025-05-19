@@ -12,9 +12,10 @@ from typing import Dict, List, Optional, Tuple
 
 from torch import Tensor
 
-from torchvision.transforms import functional as F, InterpolationMode
+from torchvision.transforms.v2 import functional as F, InterpolationMode
 
 from torchvision import transforms
+import torchvision.transforms.v2 as transforms_v2
 
 
 def _apply_op(
@@ -112,7 +113,6 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         selected_transforms: Optional[List[str]] = None,
         get_signed: bool = False,
         dataset_name: str = "CIFAR10",
-        individual_analysis: bool = False,
         mapping_approach: str = "exact",
     ):
         super().__init__()
@@ -121,15 +121,13 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         self.interpolation = interpolation
         self.fill = fill
         self.dataset_name = dataset_name
-        self.individual_analysis = individual_analysis
         self.mapping_approach = mapping_approach
 
-        """MODIFICATION: Add severity"""
+        """MODIFICATION"""
         self.severity = severity
         self.selected_transforms = selected_transforms
         self.get_signed = get_signed
         self.k = 2
-        """MODIFICATION: Add severity"""
 
         if dataset_name == "CIFAR10":
             self.chance = 1 / 10
@@ -139,6 +137,8 @@ class CustomTrivialAugmentWide(torch.nn.Module):
             self.chance = 1 / 200
         else:
             raise ValueError(f"Dataset name {dataset_name} not supported")
+        """MODIFICATION"""
+
 
     def _augmentation_space(self, num_bins: int, selected_transforms: Optional[List[str]] = None) -> Dict[str, Tuple[Tensor, bool]]:
         # Define the full augmentation space
@@ -157,7 +157,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 8 - (torch.arange(num_bins) / ((num_bins - 1) / 6)).round().int(),
                 False,
             ),
-            "Solarize": (torch.linspace(255.0, 0.0, num_bins), False),
+            "Solarize": (torch.linspace(1.0, 0.0, num_bins), False),
             "AutoContrast": (torch.tensor(0.0), False),
             "Equalize": (torch.tensor(0.0), False),
         }
@@ -165,7 +165,9 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         if selected_transforms is None:
             # Return the full dictionary if no specific transforms are selected
             return augmentation_space
-        
+        elif isinstance(selected_transforms, str):
+            selected_transforms = [selected_transforms]
+
         # Validate selected_transforms to ensure they're in the augmentation space
         invalid_transforms = [t for t in selected_transforms if t not in augmentation_space]
         if invalid_transforms:
@@ -205,7 +207,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         return (dim1 - abs(tx)) * (dim2 - abs(ty)) / (dim1 * dim2)
 
     def apply_standard_augmentation(
-        self, im: Tensor
+        self, im: Tensor, op_meta
     ) -> Tuple[Tensor, Dict[str, float]]:
         fill = self.fill
         channels, height, width = F.get_dimensions(im)
@@ -216,7 +218,6 @@ class CustomTrivialAugmentWide(torch.nn.Module):
             elif fill is not None:
                 fill = [float(f) for f in fill]
 
-        op_meta = self._augmentation_space(self.num_magnitude_bins)
         op_index = int(torch.randint(len(op_meta), (1,)).item())
         op_name = list(op_meta.keys())[op_index]
         magnitudes, signed = op_meta[op_name]
@@ -253,12 +254,14 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         return im, op_name, magnitude
 
     def apply_custom_augmentation(self, im: Tensor) -> Tuple[Tensor, List[float]]:
-        augment_im, augmentation_type, augmentation_magnitude = self.apply_standard_augmentation(im)
+
+        aug_space = self._augmentation_space(self.num_magnitude_bins, selected_transforms=self.selected_transforms)
+        augment_im, augmentation_type, augmentation_magnitude = self.apply_standard_augmentation(im, aug_space)
         confidence_aa = 1.0  # Default value
 
         if self.soft == False:
             # print(f"\nAugmentation info: {augment_info}\tconf: {confidence_aa}\n")
-            return augment_im, [augmentation_magnitude, torch.tensor(confidence_aa)]
+            return augment_im, augmentation_magnitude, confidence_aa
         
         """Performance data obtained from available HVS"""
         occlusion_hvs = [0.216, 0.388, 0.51066667, 0.584, 0.65333333, 0.68533333, 0.68, 0.72666667, 0.75466667, 0.764, 0.776, 0.78758974, 0.79876923, 0.80994872, 0.82112821, 0.83230769, 0.84348718, 0.85466667, 0.86584615, 0.87702564, 0.88820513, 0.89938462, 0.9105641, 0.92174359, 0.93292308, 0.94410256, 0.95528205, 0.96646154, 0.97764103, 0.98882051, 1.]
@@ -266,12 +269,10 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         contrast_hvs = [0.32, 0.32, 0.64254054, 0.96603963, 0.96734732, 0.96865501, 0.9699627, 0.9712704, 0.97257809, 0.97388578, 0.97519347, 0.97650117, 0.97780886, 0.97911655, 0.98042424, 0.98173193, 0.98303963, 0.98434732, 0.98565501, 0.98696271, 0.9882704, 0.98957809, 0.99088578, 0.99219347, 0.99350117, 0.99480886, 0.99611655, 0.99742424, 0.99873194, 1., 1.]
         """Performance data obtained from available HVS"""
 
-        dat = self._augmentation_space(self.num_magnitude_bins, selected_transforms=self.selected_transforms)
-
         if augmentation_type in ['Identity', 'AutoContrast', 'Equalize', 'Invert']:
             augmentation_idx = 0
         else:
-            mags = dat[augmentation_type]
+            mags = aug_space[augmentation_type]
             for i in range(len(mags[0])):
                 if round(abs(augmentation_magnitude), 5) == round(mags[0][i].item(), 5):
                     augmentation_idx = i
@@ -312,7 +313,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa = rotation_hvs[augmentation_idx]
                 elif self.mapping_approach=="other":
                     """Mapping function from Translation HVS"""
-                    dim1, dim2 = im.size[0], im.size[1]
+                    dim1, dim2 = im.shape[0], im.shape[1]
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0., ty=augmentation_magnitude
                     )
@@ -339,7 +340,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa = rotation_hvs[augmentation_idx]
                 elif self.mapping_approach=="other":
                     """Mapping function from Translation HVS"""
-                    dim1, dim2 = im.size[0], im.size[1]
+                    dim1, dim2 = im.shape[0], im.shape[1]
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0., ty=augmentation_magnitude
                     )
@@ -355,7 +356,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
                 elif self.mapping_approach=="smoothened_hvs":
                     """Mapping function from Translation HVS"""
-                    dim1, dim2 = im.size[0], im.size[1]
+                    dim1, dim2 = im.shape[0], im.shape[1]
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=augmentation_magnitude, ty=0
                     )
@@ -364,7 +365,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa = 1 - (1 - chance) * (1 - visibility) ** k
                 elif self.mapping_approach=="fixed_params":
                     """Fixed Parameters"""
-                    dim1, dim2 = im.size[0], im.size[1]
+                    dim1, dim2 = im.shape[0], im.shape[1]
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=augmentation_magnitude, ty=0
                     )
@@ -381,7 +382,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
                 elif self.mapping_approach=="smoothened_hvs":
                     """Mapping function from Translation HVS"""
-                    dim1, dim2 = im.size[0], im.size[1]
+                    dim1, dim2 = im.shape[0], im.shape[1]
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0, ty=augmentation_magnitude
                     )
@@ -390,7 +391,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa = 1 - (1 - chance) * (1 - visibility) ** k
                 elif self.mapping_approach=="fixed_params":
                     """Fixed Parameters"""
-                    dim1, dim2 = im.size[0], im.size[1]
+                    dim1, dim2 = im.shape[0], im.shape[1]
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0, ty=augmentation_magnitude
                     )
@@ -565,15 +566,11 @@ class CustomTrivialAugmentWide(torch.nn.Module):
             np.where(confidence_aa < self.chance, self.chance, confidence_aa)
         )
 
-        #if self.dataset_name=="TinyImageNet":
-        #    to_tensor = transforms.Compose([transforms.ToTensor()])
-        #    augment_im = to_tensor(augment_im)
+        if isinstance(confidence_aa, torch.Tensor):
+            confidence_aa = confidence_aa.item()
 
-        # print(f"Trivial augment applied: Augmentation info: {augment_info}, conf: {confidence_aa}")
-        if self.individual_analysis:
-            return augment_im, [augmentation_magnitude, confidence_aa]
-        return augment_im, confidence_aa
-
+        return augment_im, augmentation_magnitude, confidence_aa
+        
     def __repr__(self):
         s = (
             f"{self.__class__.__name__}("
@@ -588,5 +585,5 @@ class CustomTrivialAugmentWide(torch.nn.Module):
     
     def forward(self, im: torch.Tensor) -> Tensor:
         # if self.soft:
-        augment_im, augment_info = self.apply_custom_augmentation(im)
-        return augment_im, augment_info
+        aug_im, aug_mag, conf = self.apply_custom_augmentation(im)
+        return aug_im, aug_mag, conf

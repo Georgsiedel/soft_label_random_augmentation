@@ -9,8 +9,9 @@ def evaluate_model(model, dataloader):
 
     with torch.no_grad():
         model.eval()
-        for _, data in enumerate(dataloader):
-            images, labels, _ = data
+        for i, data in enumerate(dataloader):
+            print(i)
+            images, labels, _ , _ = data
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)

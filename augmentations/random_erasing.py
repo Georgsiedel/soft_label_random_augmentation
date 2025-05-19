@@ -69,6 +69,8 @@ class RandomErasing(torch.nn.Module):
             self.chance = 0.01
         else: 
             raise ValueError("Dataset name should be either CIFAR10 or CIFAR100")
+        self.occlusion_hvs = [0.216, 0.388, 0.51066667, 0.584, 0.65333333, 0.68533333, 0.68, 0.72666667, 0.75466667, 0.764, 0.776, 0.78758974, 0.79876923, 0.80994872, 0.82112821, 0.83230769, 0.84348718, 0.85466667, 0.86584615, 0.87702564, 0.88820513, 0.89938462, 0.9105641, 0.92174359, 0.93292308, 0.94410256, 0.95528205, 0.96646154, 0.97764103, 0.98882051, 1.]
+
         """MODIFICATION"""
 
     @staticmethod
@@ -129,23 +131,30 @@ class RandomErasing(torch.nn.Module):
             float: Visibility ratio of the cropped image.
         """
         return 1 - (h * w) / (dim1 * dim2)
+    
+    def ensure_tuple_and_append(self, existing, value):
+        return (existing if isinstance(existing, tuple) else (existing,)) + (value,)
 
     def forward(self, img):
         """
         Args:
-            img (Tensor): Tensor image to be erased.
+            image: tuple containing Tensor image, TA magnitude, confidence.
 
         Returns:
-            img (Tensor): Erased Tensor image.
+            tuple containing cropped Tensor image, TA magnitude, confidences tuple.
         """
 
         """MODIFICATION"""
         h, w = 0, 0
 
-        to_tensor = F.to_tensor
-        img = to_tensor(img)
         confidence_re = 1.0
-        occlusion_hvs = [0.216, 0.388, 0.51066667, 0.584, 0.65333333, 0.68533333, 0.68, 0.72666667, 0.75466667, 0.764, 0.776, 0.78758974, 0.79876923, 0.80994872, 0.82112821, 0.83230769, 0.84348718, 0.85466667, 0.86584615, 0.87702564, 0.88820513, 0.89938462, 0.9105641, 0.92174359, 0.93292308, 0.94410256, 0.95528205, 0.96646154, 0.97764103, 0.98882051, 1.]
+
+        tensor_image = img[0]
+        if not isinstance(tensor_image, torch.Tensor):
+            raise TypeError(f"Expected Tensor Image but got {type(tensor_image)}")
+
+        confidences = img[2]
+
         """MODIFICATION"""
 
         if torch.rand(1) < self.p:
@@ -160,22 +169,24 @@ class RandomErasing(torch.nn.Module):
             else:
                 value = self.value
 
-            if value is not None and not (len(value) in (1, img.shape[-3])):
+            if value is not None and not (len(value) in (1, tensor_image.shape[-3])):
                 raise ValueError(
                     "If value is a sequence, it should have either a single value or "
-                    f"{img.shape[-3]} (number of input channels)"
+                    f"{tensor_image.shape[-3]} (number of input channels)"
                 )
 
 
-            x, y, h, w, v = self.get_params(img, scale=self.scale, ratio=self.ratio, value=value)
+            x, y, h, w, v = self.get_params(tensor_image, scale=self.scale, ratio=self.ratio, value=value)
             
             if self.custom:
-                visibility = self.compute_visibility(img.shape[-2], img.shape[-1], h, w)
+                visibility = self.compute_visibility(tensor_image.shape[-2], tensor_image.shape[-1], h, w)
                 confidence_re = (
                     1 - (1 - self.chance) * (1 - visibility) ** self.k
                 )  # The non-linear function
-            return F.erase(img, x, y, h, w, v, self.inplace), confidence_re
-        return img, confidence_re
+
+            tensor_image = F.erase(tensor_image, x, y, h, w, v, self.inplace)
+        
+        return tensor_image, img[1], self.ensure_tuple_and_append(confidences, confidence_re)
 
 
     def __repr__(self) -> str:

@@ -1,1 +1,7 @@
-data
+__pycache__/
+.venv/
+.git/
+models/__pycache_/
+augmentations/__pycache__/
+utils/__pycache__/
+visualizations/__pycache__/
