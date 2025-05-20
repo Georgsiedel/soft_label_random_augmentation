@@ -1,16 +1,22 @@
-import os
-import torch
-device = "cuda" if torch.cuda.is_available() else "cpu"
-import sys, os
+from training import train
 
-python = sys.executable
+if __name__ == "__main__":
 
-runs = 1
-run_iter =[0]
+        # Example configuration; tweak as needed:
+        config = dict(
+                dataset="CIFAR10",
+                random_cropping=1,
+                trivial_augment=0,
+                random_erasing=0,
+                random_erasing_p=0.3,
+                random_erasing_max_scale=0.33,
+                reweight=False,
+                mapping_approach="fixed_params",
+        )
 
-for run in run_iter:
+        runs = 1
 
-    print("Training run #",run)
-    cmd0 = f"python training.py --seed={run} --dataset=CIFAR10 --random_cropping=1 --trivial_augment=0 " \
-            f"--random_erasing=0 --random_erasing_p=0.3 --random_erasing_max_scale=0.33 --reweight=True "
-    os.system(cmd0)
+        # If you want multiple runs with different seeds:
+        for seed in range(runs):
+                config["seed"] = seed
+                train(**config)
