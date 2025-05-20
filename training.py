@@ -13,10 +13,15 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from models.resnets import WideResNet_28_4, ResNet18
 from augment_dataset import load_data, create_transforms, load_data_c_separately
-from utils.utils import str2bool, seed_worker
 from utils.train_utils import soft_loss
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+torch.backends.cudnn.benchmark = False
+
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
 
 def train(
     seed: int = 0,

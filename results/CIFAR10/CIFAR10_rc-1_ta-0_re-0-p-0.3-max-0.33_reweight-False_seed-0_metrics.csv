@@ -1,0 +1,20 @@
+Clean Accuracy,61.53,Epoch,Train Loss,Train Acc,Test Loss,Test Acc
+gaussian_noise,59.07,1,1.612673089212301,0.39114,1.49146688580513,0.4698
+shot_noise,60.2,2,1.071425903512507,0.6154,1.1600224077701569,0.6153
+impulse_noise,59.49,,,,,
+defocus_blur,60.32,,,,,
+glass_blur,49.24,,,,,
+motion_blur,50.07,,,,,
+zoom_blur,50.42,,,,,
+snow,59.13,,,,,
+frost,56.34,,,,,
+fog,58.43,,,,,
+brightness,60.89,,,,,
+contrast,55.93,,,,,
+elastic_transform,53.33,,,,,
+pixelate,60.91,,,,,
+jpeg_compression,60.48,,,,,
+speckle_noise,59.73,,,,,
+gaussian_blur,60.31,,,,,
+spatter,60.99,,,,,
+saturate,58.84,,,,,

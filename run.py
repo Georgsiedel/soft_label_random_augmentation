@@ -2,7 +2,7 @@ from training import train
 
 if __name__ == "__main__":
 
-        runs = 1
+        runs = 5
         for seed in range(runs):
 
                 train(seed = seed,
