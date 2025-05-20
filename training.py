@@ -13,7 +13,6 @@ import time
 import csv
 from itertools import zip_longest
 
-
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def soft_loss(pred, label, confidence, reweight=False):
@@ -37,26 +36,25 @@ def soft_loss(pred, label, confidence, reweight=False):
         kl = confidence * kl  # Weighted
     return kl.mean()
 
-parser = argparse.ArgumentParser(description='Soft Augmentations')
-parser.add_argument('--seed', default=0, type=int, help='seed number')
-parser.add_argument('--batch_size', default=256, type=int, help='train batch size')
-parser.add_argument('--selected_transforms', type=str, nargs='+', default=None)
-parser.add_argument('--augmentation_sign', type=str2bool, nargs='?', const=False, default=False)
-parser.add_argument('--augmentation_severity', default=-1, type=int)
-parser.add_argument('--dataset', type=str, default="CIFAR10", help="CIFAR10, CIFAR100 and TinyImageNet are avaliable.")
-parser.add_argument('--random_cropping', default=1, type=int, help='0 for none, 1 for original, 2 for soft')
-parser.add_argument('--trivial_augment', default=0, type=int, help='0 for none, 1 for original, 2 for soft')
-parser.add_argument('--random_erasing', default=0, type=int, help='0 for none, 1 for original, 2 for soft')
-parser.add_argument('--random_erasing_p', default=0.3, type=float, help='random erasing probability')
-parser.add_argument('--random_erasing_max_scale', default=0.33, type=float, help='random erasing maximum scale (image area)')
-parser.add_argument('--epochs', default=200, type=int, help='number epochs (cosine scheduler)')
-parser.add_argument('--learning_rate', default=0.1, type=float, help='initial learning rate (cosine scheduler)')
-parser.add_argument('--reweight', type=str2bool, nargs='?', const=False, default=False, help='reweighting loss with confidence')
-
-args = parser.parse_args()
-
-
 if __name__ == "__main__":
+
+    par = argparse.ArgumentParser(description='Soft Augmentations')
+    par.add_argument('--seed', default=0, type=int, help='seed number')
+    par.add_argument('--batch_size', default=256, type=int, help='train batch size')
+    par.add_argument('--selected_transforms', type=str, nargs='+', default=None)
+    par.add_argument('--augmentation_sign', type=str2bool, nargs='?', const=False, default=False)
+    par.add_argument('--augmentation_severity', default=-1, type=int)
+    par.add_argument('--dataset', type=str, default="CIFAR10", help="CIFAR10, CIFAR100 and TinyImageNet are avaliable.")
+    par.add_argument('--random_cropping', default=1, type=int, help='0 for none, 1 for original, 2 for soft')
+    par.add_argument('--trivial_augment', default=0, type=int, help='0 for none, 1 for original, 2 for soft')
+    par.add_argument('--random_erasing', default=0, type=int, help='0 for none, 1 for original, 2 for soft')
+    par.add_argument('--random_erasing_p', default=0.3, type=float, help='random erasing probability')
+    par.add_argument('--random_erasing_max_scale', default=0.33, type=float, help='random erasing maximum scale (image area)')
+    par.add_argument('--epochs', default=200, type=int, help='number epochs (cosine scheduler)')
+    par.add_argument('--learning_rate', default=0.1, type=float, help='initial learning rate (cosine scheduler)')
+    par.add_argument('--reweight', type=str2bool, nargs='?', const=False, default=False, help='reweighting loss with confidence')
+
+    args = par.parse_args()
 
     # Set the random seed for reproducibility
     g = torch.Generator()
