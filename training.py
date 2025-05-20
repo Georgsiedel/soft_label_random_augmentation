@@ -30,11 +30,12 @@ def train(
     random_erasing: int = 0,
     random_erasing_p: float = 0.3,
     random_erasing_max_scale: float = 0.33,
-    epochs: int = 200,
+    epochs: int = 2,
     learning_rate: float = 0.1,
     reweight: bool = False,
     mapping_approach: str = "fixed_params",
-    save_dir: str = "/models/trained"
+    save_dir: str = "../trained_models/soft_augmentation",
+    results_dir: str = "results/"
 ):
     # 1. Seed everything
     torch.manual_seed(seed)
@@ -67,7 +68,7 @@ def train(
     )
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size, shuffle=True,
-        num_workers=0, worker_init_fn=seed_worker, generator=g
+        num_workers=1, worker_init_fn=seed_worker, generator=g
     )
     testloader = torch.utils.data.DataLoader(
         testset, batch_size=batch_size, shuffle=False, num_workers=0
@@ -85,8 +86,7 @@ def train(
     train_accuracies, test_accuracies = [], []
 
     print(f"\nStarting training: seed={seed}, dataset={dataset}\n")
-    steps = ((int(len(trainset) / batch_size) + int(len(testset) / batch_size)) * epochs)
-    print(steps)
+    steps = ((int(len(trainset) / batch_size) + int(len(testset) / batch_size) + 2) * epochs)
     with tqdm(total=steps, desc="Training Progress") as pbar:
 
         for epoch in range(epochs):
@@ -117,8 +117,8 @@ def train(
                 # Update the progress bar
                 pbar.set_postfix({
                     "epoch": f"{epoch+1}/{epochs}",
-                    "avg_loss": f"{running_loss / total_train:.4f}",
-                    "train_acc": f"{correct_train / total_train:.2%}"
+                    "train_acc": f"{correct_train / total_train:.2%}",
+                    "correct": f"({correct_train} / {total_train})"
                 })
                 pbar.update(1)
 
@@ -142,8 +142,8 @@ def train(
                     # Update the progress bar for evaluation
                     pbar.set_postfix({
                         "epoch": f"{epoch+1}/{epochs}",
-                        "avg_loss": f"{test_loss / total:.4f}",
-                        "test_acc": f"{correct / total:.2%}"
+                        "test_acc": f"{correct / total:.2%}",
+                        "correct": f"({correct} / {total})"
                     })
                     pbar.update(1)
 
@@ -172,7 +172,7 @@ def train(
         f"-p-{random_erasing_p}-max-{random_erasing_max_scale}"
         f"_reweight-{reweight}_seed-{seed}.pth"
     )
-    path = f"{save_dir}/{fname}"
+    path = f"{save_dir}/{dataset}/{fname}"
     torch.save(net.state_dict(), path)
     print(f"Model saved to {path}")
 
@@ -212,7 +212,7 @@ def train(
 
     # 9. Save CSV metrics
     csv_name = fname.replace(".pth", "_metrics.csv")
-    csv_path = f"{save_dir}/{csv_name}"
+    csv_path = f"{save_dir}/{dataset}/{csv_name}"
     with open(csv_path, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow([

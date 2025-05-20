@@ -351,16 +351,16 @@ def load_data(
     if dataset_name == "CIFAR10":
         # CIFAR-10
         base_trainset = datasets.CIFAR10(root="../data", train=True, download=True)
-        testset = datasets.CIFAR10(root="../data", train=False, download=True)
+        testset = datasets.CIFAR10(root="../data", train=False, download=True, transform=transforms_preprocess)
         num_classes = 10
     elif dataset_name == "CIFAR100":
         # CIFAR-100
         base_trainset = datasets.CIFAR100(root="../data", train=True, download=True)
-        testset = datasets.CIFAR100(root="../data", train=False, download=True)
+        testset = datasets.CIFAR100(root="../data", train=False, download=True, transform=transforms_preprocess)
         num_classes = 100
     elif dataset_name == "TinyImageNet":
         base_trainset = datasets.ImageFolder(root="../data/TinyImageNet/train")
-        testset = datasets.ImageFolder(root="../data/TinyImageNet//val")
+        testset = datasets.ImageFolder(root="../data/TinyImageNet//val", transform=transforms_preprocess)
         num_classes = 200
     else:
         raise ValueError(f"Dataset {dataset_name} not supported")

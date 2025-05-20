@@ -18,6 +18,7 @@ services:
       - /home/siedel/trained_models:/trained_models
       - ./results:/workspace/results
       - ./experiments/configs:/workspace/experiments/configs
+      - ./training.py:/workspace/training.py
       - ./run.py:/workspace/run.py
       - ./run_1.py:/workspace/run_1.py
       - ./run_2.py:/workspace/run_2.py
