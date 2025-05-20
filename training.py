@@ -35,7 +35,7 @@ def train(
     reweight: bool = False,
     mapping_approach: str = "fixed_params",
     save_dir: str = "../trained_models/soft_augmentation",
-    results_dir: str = "results/"
+    results_dir: str = "results"
 ):
     # 1. Seed everything
     torch.manual_seed(seed)
@@ -212,7 +212,7 @@ def train(
 
     # 9. Save CSV metrics
     csv_name = fname.replace(".pth", "_metrics.csv")
-    csv_path = f"{save_dir}/{dataset}/{csv_name}"
+    csv_path = f"{results_dir}/{dataset}/{csv_name}"
     with open(csv_path, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow([
