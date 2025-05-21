@@ -6,6 +6,7 @@ import csv
 from itertools import zip_longest
 from typing import Optional, List
 from tqdm import tqdm
+import os
 
 import torch.nn as nn
 import torch.optim as optim
@@ -16,7 +17,6 @@ from augment_dataset import load_data, create_transforms, load_data_c_separately
 from utils.train_utils import soft_loss
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-torch.backends.cudnn.benchmark = False
 
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
@@ -35,7 +35,7 @@ def train(
     random_erasing: int = 0,
     random_erasing_p: float = 0.3,
     random_erasing_max_scale: float = 0.33,
-    epochs: int = 2,
+    epochs: int = 200,
     learning_rate: float = 0.1,
     reweight: bool = False,
     mapping_approach: str = "fixed_params",
@@ -44,11 +44,15 @@ def train(
 ):
     # 1. Seed everything
     torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     random.seed(seed)
     g = torch.Generator()
     g.manual_seed(seed)
+
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
     # 2. Build transforms
     transforms_preprocess, transforms_augmentation = create_transforms(
@@ -66,21 +70,21 @@ def train(
     )
 
     # 3. Load data
-    trainset, testset, num_classes = load_data(
+    trainset, testset, num_classes, factor, train_workers = load_data(
         transforms_preprocess=transforms_preprocess,
         transforms_augmentation=transforms_augmentation,
         dataset_name=dataset
     )
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size, shuffle=True,
-        num_workers=1, worker_init_fn=seed_worker, generator=g
+        num_workers=train_workers, worker_init_fn=seed_worker, generator=g
     )
     testloader = torch.utils.data.DataLoader(
         testset, batch_size=batch_size, shuffle=False, num_workers=0
     )
 
     # 4. Model, loss, optimizer, scheduler
-    net = WideResNet_28_4(num_classes=num_classes).to(device)
+    net = WideResNet_28_4(num_classes=num_classes, factor=factor).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=learning_rate,
                           momentum=0.9, weight_decay=1e-4)
@@ -213,6 +217,8 @@ def train(
         print(f"Robust acc on {corr}: {acc:.2f}%")
         robust_accs.append(acc)
     avg_robust = sum(robust_accs) / len(robust_accs)
+    robust_accs.append(avg_robust)
+    corruptions.append("Average")
     print(f"Average robust accuracy: {avg_robust:.2f}%")
 
     # 9. Save CSV metrics

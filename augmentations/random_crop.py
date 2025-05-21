@@ -21,7 +21,7 @@ class RandomCrop:
         n_class: int = 10,
         k: int = 2,
         bg_crop: float = 1.0,
-        sigma_crop: float = 10,
+        sigma_crop: float = 0.3,
         dataset_name: str = "CIFAR10",
         custom: bool = False    
         ):
@@ -42,7 +42,7 @@ class RandomCrop:
     def draw_offset(
         self,
         sigma: Optional[float] = 0.3,
-        limit: Optional[int] = 24,
+        limit: Optional[int] = 32,
         n: Optional[int] = 100
     ) -> int:
         """Draws a random offset within a specified limit using a normal distribution.
@@ -56,7 +56,7 @@ class RandomCrop:
             int: The drawn offset within the limit
         """
         for _ in range(n):
-            x = torch.randn((1)) * sigma
+            x = torch.randn((1)) * limit * sigma
             if abs(x) <= limit:
                 return int(x)
         return int(0)

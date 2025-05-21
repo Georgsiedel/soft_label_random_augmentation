@@ -142,7 +142,10 @@ def create_transforms(
     ]
 
     if random_cropping == 1:
-        augmentations.append(transforms.RandomCrop(32, padding=4))
+        if dataset_name == "TinyImageNet":
+            augmentations.append(transforms.RandomCrop(64, padding=4))
+        else:
+            augmentations.append(transforms.RandomCrop(32, padding=4))
 
     if trivial_augment == 0:
         augmentations.append(Placeholder_with_Confidence(1.0, -1))
@@ -167,6 +170,8 @@ def create_transforms(
     
     if random_cropping == 2:
         augmentations.append(RandomCrop(dataset_name=dataset_name, custom=True))
+    elif random_cropping == 3:
+        augmentations.append(RandomCrop(dataset_name=dataset_name, custom=False))
 
     if random_erasing == 1:
         augmentations.append(RandomErasing(p=random_erasing_p, scale=(0.02, random_erasing_max_scale), ratio=(0.3, 3.3), value='random', custom=False, dataset_name=dataset_name))
@@ -202,15 +207,21 @@ def load_data(
         base_trainset = datasets.CIFAR10(root="../data", train=True, download=True)
         testset = datasets.CIFAR10(root="../data", train=False, download=True, transform=transforms_preprocess)
         num_classes = 10
+        factor = 1
+        train_workers = 1
     elif dataset_name == "CIFAR100":
         # CIFAR-100
         base_trainset = datasets.CIFAR100(root="../data", train=True, download=True)
         testset = datasets.CIFAR100(root="../data", train=False, download=True, transform=transforms_preprocess)
         num_classes = 100
+        factor = 1
+        train_workers = 1
     elif dataset_name == "TinyImageNet":
         base_trainset = datasets.ImageFolder(root="../data/TinyImageNet/train")
         testset = datasets.ImageFolder(root="../data/TinyImageNet//val", transform=transforms_preprocess)
         num_classes = 200
+        factor = 2
+        train_workers = 2
     else:
         raise ValueError(f"Dataset {dataset_name} not supported")
 
@@ -220,7 +231,7 @@ def load_data(
         transforms_augmentation=transforms_augmentation,
     )
 
-    return trainset, testset, num_classes
+    return trainset, testset, num_classes, factor, train_workers
 
 
 # Define the function to load corrupted datasets separately
