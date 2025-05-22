@@ -12,16 +12,16 @@ def display_image_grid(images, labels, confidences, batch_size, classes):
         batch_size (int): Number of images to display in the grid (should be 25 for a 5x5 grid).
         classes (list): List of class names for labeling.
     """
-    # Limit batch_size to 16 for a 4x4 grid
-    batch_size = min(batch_size, 16)
+    # Limit batch_size to 36 for a 6x6 grid
+    batch_size = min(batch_size, 36)
     
     # Ensure confidences are correctly formatted as a tensor
     if isinstance(confidences, list):
         confidences = torch.tensor(confidences)
 
-    plt.figure(figsize=(6, 6))
+    plt.figure(figsize=(12,7))
     for i in range(batch_size):
-        ax = plt.subplot(5, 5, i + 1)
+        ax = plt.subplot(6, 6, i + 1)
         # Convert image to numpy for display
         img = images[i].permute(1, 2, 0).numpy()  # From (C, H, W) to (H, W, C)
         ax.imshow(img)

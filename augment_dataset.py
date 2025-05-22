@@ -118,7 +118,7 @@ def create_transforms(
     augmentation_sign: bool = False,
     dataset_name: str = "CIFAR10",
     seed: Optional[int] = None,
-    mapping_approach: Optional[str] = "exact_model_accuracy",
+    mapping_approach: Optional[str] = "fixed_params",
 ) -> Optional[tuple]:
     """Creates preprocessing and augmentation transformations.
 
@@ -189,6 +189,15 @@ def create_transforms(
 
     return transforms_preprocess, transforms_augmentation
 
+def load_class_names(filepath):
+    wnid_to_name = {}
+    with open(filepath, 'r') as f:
+        for line in f:
+            wnid, names  = line.strip().split('\t')  # Assumes tab-separated values
+            first_name = names.split(',')[0]  # Take the first name
+            wnid_to_name[wnid] = first_name
+    return wnid_to_name
+
 
 def load_data(
     transforms_preprocess,
@@ -225,6 +234,10 @@ def load_data(
         testset = datasets.ImageFolder(root="../data/TinyImageNet//val", transform=transforms_preprocess)
         num_classes = 200
         factor = 2
+        #get human-readable class-names for display
+        wnid_to_name = load_class_names("../data/TinyImageNet/words200.txt")
+        base_trainset.classes = [wnid_to_name.get(wnid, "Unknown") for wnid in base_trainset.classes]
+
     else:
         raise ValueError(f"Dataset {dataset_name} not supported")
 
@@ -267,9 +280,9 @@ def seed_worker(worker_id):
     np.random.seed(worker_seed)
     random.seed(worker_seed)
 
-def visualize(seed=0, batch_size=64, selected_transforms=None, augmentation_sign=False,
-              augmentation_severity=-1, dataset="TinyImageNet", random_cropping=1, trivial_augment=0,
-              random_erasing=0, random_erasing_p=0.3, random_erasing_max_scale=0.33):
+def visualize(seed=0, batch_size=36, selected_transforms=None, augmentation_sign=False,
+              augmentation_severity=-1, dataset="TinyImageNet", random_cropping=0, trivial_augment=0,
+              random_erasing=2, random_erasing_p=0.3, random_erasing_max_scale=0.1, mapping_approach="fixed_params"):
     
     g = torch.Generator()
     g.manual_seed(seed)
@@ -283,23 +296,25 @@ def visualize(seed=0, batch_size=64, selected_transforms=None, augmentation_sign
         trivial_augment=trivial_augment, random_erasing=random_erasing, random_erasing_p=random_erasing_p,
         random_erasing_max_scale=random_erasing_max_scale, random_cropping=random_cropping,
         selected_transforms=selected_transforms, augmentation_severity=augmentation_severity,
-        augmentation_sign=augmentation_sign, dataset_name=dataset, seed=seed
+        augmentation_sign=augmentation_sign, dataset_name=dataset, seed=seed, mapping_approach=mapping_approach
     )
 
-    trainset, testset, num_classes = load_data(transforms_preprocess, transforms_augmentation, dataset_name=dataset)
+    trainset, _, num_classes, _ = load_data(transforms_preprocess, transforms_augmentation, dataset_name=dataset)
     print(f"Transforms: {transforms_augmentation}")
     print(f"Number of classes: {num_classes}")
     
     # Create a data loader for the training set
     trainloader = torch.utils.data.DataLoader(trainset, 
                                               batch_size=batch_size, 
-                                              shuffle=False, 
+                                              shuffle=True, 
                                               worker_init_fn=seed_worker, 
                                               generator=g)
 
     # Display a grid of images with labels and confidence scores
-    images, labels, confidences = next(iter(trainloader))
-    display_image_grid(images, labels, confidences, batch_size=64, classes=num_classes)
+    classes = trainset.dataset.classes
+    print(classes)
+    images, labels, confidences, _ = next(iter(trainloader))
+    display_image_grid(images, labels, confidences, batch_size=36, classes=classes)
     #print(f"Confidence: {confidences}")
 
 if __name__ == "__main__":
