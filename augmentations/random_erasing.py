@@ -35,7 +35,7 @@ class RandomErasing(torch.nn.Module):
         >>> ])
     """
 
-    def __init__(self, p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False, custom=False, chance: float = 0.1):
+    def __init__(self, p=0.5, scale=(0.02, 0.4), ratio=(0.3, 3.3), value=0, inplace=False, custom=False, chance: float = 0.1):
         super().__init__()
         # _log_api_usage_once(self)
         if not isinstance(value, (numbers.Number, str, tuple, list)):
