@@ -25,7 +25,7 @@ def seed_worker(worker_id):
 
 def train(
     seed: int = 0,
-    batch_size: int = 256,
+    batch_size: int = 128,
     selected_transforms: Optional[List[str]] = None,
     augmentation_sign: bool = False,
     augmentation_severity: int = -1,
@@ -35,7 +35,7 @@ def train(
     random_erasing: int = 0,
     random_erasing_p: float = 0.3,
     random_erasing_max_scale: float = 0.33,
-    epochs: int = 200,
+    epochs: int = 300,
     learning_rate: float = 0.1,
     reweight: bool = False,
     mapping_approach: str = "fixed_params",
@@ -70,14 +70,14 @@ def train(
     )
 
     # 3. Load data
-    trainset, testset, num_classes, factor, train_workers = load_data(
+    trainset, testset, num_classes, factor = load_data(
         transforms_preprocess=transforms_preprocess,
         transforms_augmentation=transforms_augmentation,
         dataset_name=dataset
     )
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size, shuffle=True,
-        num_workers=train_workers, worker_init_fn=seed_worker, generator=g
+        num_workers=2, worker_init_fn=seed_worker, generator=g
     )
     testloader = torch.utils.data.DataLoader(
         testset, batch_size=batch_size, shuffle=False, num_workers=0
