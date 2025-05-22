@@ -12,8 +12,8 @@ def display_image_grid(images, labels, confidences, batch_size, classes):
         batch_size (int): Number of images to display in the grid (should be 25 for a 5x5 grid).
         classes (list): List of class names for labeling.
     """
-    # Limit batch_size to 25 for a 5x5 grid
-    batch_size = min(batch_size, 25)
+    # Limit batch_size to 16 for a 4x4 grid
+    batch_size = min(batch_size, 16)
     
     # Ensure confidences are correctly formatted as a tensor
     if isinstance(confidences, list):

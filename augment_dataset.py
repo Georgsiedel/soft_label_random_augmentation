@@ -261,8 +261,8 @@ def seed_worker(worker_id):
     np.random.seed(worker_seed)
     random.seed(worker_seed)
 
-def visualize(seed=0, batch_size=256, selected_transforms=None, augmentation_sign=False,
-              augmentation_severity=-1, dataset="CIFAR10", random_cropping=1, trivial_augment=0,
+def visualize(seed=0, batch_size=64, selected_transforms=None, augmentation_sign=False,
+              augmentation_severity=-1, dataset="TinyImageNet", random_cropping=1, trivial_augment=0,
               random_erasing=0, random_erasing_p=0.3, random_erasing_max_scale=0.33):
     
     g = torch.Generator()
