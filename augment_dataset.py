@@ -137,6 +137,12 @@ def create_transforms(
     Returns:
         Optional[tuple]: The preprocessing and augmentation transformations.
     """
+    if dataset_name == "CIFAR10":
+        n_classes = 10
+    elif dataset_name == "CIFAR100":
+        n_classes = 100
+    elif dataset_name == "TinyImageNet":
+        n_classes = 200
     augmentations = [
         transforms.RandomHorizontalFlip()       # For Tiny-ImageNet: 64 x 64; For CIFAR: 32 x 32
     ]
@@ -155,7 +161,7 @@ def create_transforms(
                     severity=augmentation_severity,
                     selected_transforms=selected_transforms,
                     get_signed=augmentation_sign,
-                    dataset_name=dataset_name,
+                    chance = 1 / n_classes,
                     mapping_approach=mapping_approach,
                 ))
     elif trivial_augment == 2:
@@ -164,19 +170,19 @@ def create_transforms(
                     severity=augmentation_severity,
                     selected_transforms=selected_transforms,
                     get_signed=augmentation_sign,
-                    dataset_name=dataset_name,
+                    chance = 1 / n_classes,
                     mapping_approach=mapping_approach,
                 ))
     
     if random_cropping == 2:
-        augmentations.append(RandomCrop(dataset_name=dataset_name, custom=True))
+        augmentations.append(RandomCrop(chance = 1 / n_classes, custom=True))
     elif random_cropping == 3:
-        augmentations.append(RandomCrop(dataset_name=dataset_name, custom=False))
+        augmentations.append(RandomCrop(chance = 1 / n_classes, custom=False))
 
     if random_erasing == 1:
-        augmentations.append(RandomErasing(p=random_erasing_p, scale=(0.02, random_erasing_max_scale), ratio=(0.3, 3.3), value='random', custom=False, dataset_name=dataset_name))
+        augmentations.append(RandomErasing(p=random_erasing_p, scale=(0.02, random_erasing_max_scale), ratio=(0.3, 3.3), value='random', custom=False, chance = 1 / n_classes))
     elif random_erasing == 2:
-        augmentations.append(RandomErasing(p=random_erasing_p, scale=(0.02, random_erasing_max_scale), ratio=(0.3, 3.3), value='random', custom=True, dataset_name=dataset_name))
+        augmentations.append(RandomErasing(p=random_erasing_p, scale=(0.02, random_erasing_max_scale), ratio=(0.3, 3.3), value='random', custom=True, chance = 1 / n_classes))
 
     transforms_preprocess = transforms.ToTensor()
     transforms_augmentation = transforms.Compose(augmentations)
@@ -208,20 +214,17 @@ def load_data(
         testset = datasets.CIFAR10(root="../data", train=False, download=True, transform=transforms_preprocess)
         num_classes = 10
         factor = 1
-        train_workers = 1
     elif dataset_name == "CIFAR100":
         # CIFAR-100
         base_trainset = datasets.CIFAR100(root="../data", train=True, download=True)
         testset = datasets.CIFAR100(root="../data", train=False, download=True, transform=transforms_preprocess)
         num_classes = 100
         factor = 1
-        train_workers = 1
     elif dataset_name == "TinyImageNet":
         base_trainset = datasets.ImageFolder(root="../data/TinyImageNet/train")
         testset = datasets.ImageFolder(root="../data/TinyImageNet//val", transform=transforms_preprocess)
         num_classes = 200
         factor = 2
-        train_workers = 2
     else:
         raise ValueError(f"Dataset {dataset_name} not supported")
 
@@ -231,7 +234,7 @@ def load_data(
         transforms_augmentation=transforms_augmentation,
     )
 
-    return trainset, testset, num_classes, factor, train_workers
+    return trainset, testset, num_classes, factor
 
 
 # Define the function to load corrupted datasets separately
@@ -241,16 +244,19 @@ def load_data_c_separately(dataset, testset, batch_size, transforms_preprocess):
     for corruption in corruptions:
         if dataset == 'CIFAR10' or dataset == 'CIFAR100':
             np_data_c = np.load(f'../data/{dataset}-c/{corruption}.npy')
+
             np_data_c = np.array(np.array_split(np_data_c, 5))
-            custom_dataset = CustomDataset(np_data_c[0], testset)  # Load only one split for now
-            custom_dataloader = torch.utils.data.DataLoader(custom_dataset, batch_size=batch_size, shuffle=False)
-            c_datasets[corruption] = custom_dataloader
+
+            concat_intensities = ConcatDataset([CustomDataset(intensity_data_c, testset) for intensity_data_c in np_data_c])
+
+            dataloader_c = torch.utils.data.DataLoader(concat_intensities, batch_size=batch_size, shuffle=False)
+            c_datasets[corruption] = dataloader_c
         elif dataset == 'TinyImageNet':
             intensity_datasets = [datasets.ImageFolder(root=os.path.abspath(f'../data/TinyImageNet-c/' + corruption + '/' + str(intensity)),
                                                                         transform=transforms_preprocess) for intensity in range(1, 6)]
             concat_intensities = ConcatDataset(intensity_datasets)
-            custom_dataloader = torch.utils.data.DataLoader(concat_intensities, batch_size=batch_size, shuffle=False)
-            c_datasets[corruption] = custom_dataloader
+            dataloader_c = torch.utils.data.DataLoader(concat_intensities, batch_size=batch_size, shuffle=False)
+            c_datasets[corruption] = dataloader_c
         else:
             print('No corrupted benchmark available other than CIFAR10-c.')
 

@@ -35,7 +35,7 @@ class RandomErasing(torch.nn.Module):
         >>> ])
     """
 
-    def __init__(self, p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False, custom=False, dataset_name='CIFAR10'):
+    def __init__(self, p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False, custom=False, chance: float = 0.1):
         super().__init__()
         # _log_api_usage_once(self)
         if not isinstance(value, (numbers.Number, str, tuple, list)):
@@ -60,15 +60,10 @@ class RandomErasing(torch.nn.Module):
         self.inplace = inplace
         
         """MODIFICATION"""
-        self.dataset_name = dataset_name
+        self.chance = chance
         self.k = 1
         self.custom = custom
-        if self.dataset_name == 'CIFAR10':
-            self.chance = 0.1
-        elif self.dataset_name == 'CIFAR100':
-            self.chance = 0.01
-        else: 
-            raise ValueError("Dataset name should be either CIFAR10 or CIFAR100")
+
         self.occlusion_hvs = [0.216, 0.388, 0.51066667, 0.584, 0.65333333, 0.68533333, 0.68, 0.72666667, 0.75466667, 0.764, 0.776, 0.78758974, 0.79876923, 0.80994872, 0.82112821, 0.83230769, 0.84348718, 0.85466667, 0.86584615, 0.87702564, 0.88820513, 0.89938462, 0.9105641, 0.92174359, 0.93292308, 0.94410256, 0.95528205, 0.96646154, 0.97764103, 0.98882051, 1.]
 
         """MODIFICATION"""

@@ -18,22 +18,13 @@ class RandomCrop:
 
     def __init__(
         self,
-        n_class: int = 10,
         k: int = 2,
         bg_crop: float = 1.0,
         sigma_crop: float = 0.3,
-        dataset_name: str = "CIFAR10",
+        chance: float = 0.1,
         custom: bool = False    
         ):
-        if dataset_name == "CIFAR10":
-            self.n_class = 10
-        elif dataset_name == "CIFAR100":
-            self.n_class = 100
-        elif dataset_name == "Tiny-ImageNet":
-            self.n_class = 200
-        else:
-            raise ValueError(f"Dataset name {dataset_name} not supported")
-        self.chance = 1 / self.n_class
+        self.chance = chance  
         self.k = k
         self.sigma_crop = sigma_crop
         self.bg_crop = bg_crop

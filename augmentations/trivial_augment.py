@@ -112,7 +112,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         severity: int = 0,
         selected_transforms: Optional[List[str]] = None,
         get_signed: bool = False,
-        dataset_name: str = "CIFAR10",
+        chance: float = 0.1,
         mapping_approach: str = "exact",
     ):
         super().__init__()
@@ -120,7 +120,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         self.num_magnitude_bins = num_magnitude_bins
         self.interpolation = interpolation
         self.fill = fill
-        self.dataset_name = dataset_name
+        self.chance = chance
         self.mapping_approach = mapping_approach
 
         """MODIFICATION"""
@@ -128,15 +128,6 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         self.selected_transforms = selected_transforms
         self.get_signed = get_signed
         self.k = 2
-
-        if dataset_name == "CIFAR10":
-            self.chance = 1 / 10
-        elif dataset_name == "CIFAR100":
-            self.chance = 1 / 100
-        elif dataset_name == "TinyImageNet":
-            self.chance = 1 / 200
-        else:
-            raise ValueError(f"Dataset name {dataset_name} not supported")
         """MODIFICATION"""
 
 
