@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
-from models.resnets import WideResNet_28_4, ResNet18
+from models.resnets import WideResNet_28_4, WideResNet_28_4_ref, ResNet18
 from augment_dataset import load_data, create_transforms, load_data_c_separately
 from utils.train_utils import soft_loss
 
@@ -90,8 +90,8 @@ def train(
                           momentum=0.9, weight_decay=1e-4)
     scheduler = CosineAnnealingLR(optimizer, T_max=epochs)
     if mapping_approach == 'model_confidence':
-        eval_net = WideResNet_28_4(num_classes=num_classes, factor=factor).to(device)
-        state_dict = torch.load("models/pretrained/noTA_CIFAR10.pth", map_location=device, weight_only=True)
+        eval_net = WideResNet_28_4_ref(num_classes=num_classes, factor=factor).to(device)
+        state_dict = torch.load(f"models/pretrained/noTA_{dataset}.pth", map_location=device, weight_only=True)
         eval_net.load_state_dict(state_dict['model_state_dict'], strict=False)
         eval_net.eval()
 
@@ -114,6 +114,14 @@ def train(
                 optimizer.zero_grad()
 
                 outputs = net(inputs)
+                
+                if mapping_approach == 'model_confidence':
+                    with torch.no_grad():
+                        ref_outputs = eval_net(inputs)
+                        # Overwrite combined_confidences with model confidence
+                        # (pretrained on same dataset, but none of the augmentations were used) 
+                        combined_confidences = ref_outputs.max(1)
+
                 loss = soft_loss(
                     pred=outputs,
                     label=labels,
