@@ -33,8 +33,8 @@ def train(
     random_cropping: int = 1,
     trivial_augment: int = 0,
     random_erasing: int = 0,
-    random_erasing_p: float = 0.3,
-    random_erasing_max_scale: float = 0.33,
+    random_erasing_p: float = 0.5,
+    random_erasing_max_scale: float = 0.4,
     epochs: int = 300,
     learning_rate: float = 0.1,
     reweight: bool = False,
@@ -89,6 +89,11 @@ def train(
     optimizer = optim.SGD(net.parameters(), lr=learning_rate,
                           momentum=0.9, weight_decay=1e-4)
     scheduler = CosineAnnealingLR(optimizer, T_max=epochs)
+    if mapping_approach == 'model_confidence':
+        eval_net = WideResNet_28_4(num_classes=num_classes, factor=factor).to(device)
+        state_dict = torch.load("models/pretrained/noTA_CIFAR10.pth", map_location=device, weight_only=True)
+        eval_net.load_state_dict(state_dict['model_state_dict'], strict=False)
+        eval_net.eval()
 
     # 5. Training loop
     train_losses, test_losses = [], []
