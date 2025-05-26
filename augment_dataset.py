@@ -132,7 +132,7 @@ def create_transforms(
         dataset_name (str, optional): Name of the dataset. Defaults to "CIFAR10".
         seed (int, optional): Random seed for reproducibility.
         individual_analysis (bool, optional): Whether to perform individual analysis of augmentations.
-        mapping_approach (str, optional): Approach for mapping confidence. Defaults to "exact_model_accuracy".
+        mapping_approach (str, optional): Approach for mapping confidence. Defaults to "fixed_params".
 
     Returns:
         Optional[tuple]: The preprocessing and augmentation transformations.

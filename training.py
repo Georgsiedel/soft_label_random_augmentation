@@ -223,7 +223,15 @@ def train(
 
     # 9. Save CSV metrics
     csv_name = fname.replace(".pth", "_metrics.csv")
-    csv_path = f"{results_dir}/{dataset}/{csv_name}"
+    if selected_transforms is not None:
+        transforms_folder = "_".join(selected_transforms)
+        folder_path = os.path.join(results_dir, dataset, transforms_folder)
+    else:
+        folder_path = os.path.join(results_dir, dataset)
+        
+    os.makedirs(folder_path, exist_ok=True)  # ensure parent exists
+    csv_path = os.path.join(folder_path, csv_name)
+
     with open(csv_path, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow([
@@ -237,6 +245,7 @@ def train(
             fillvalue=""
         ):
             w.writerow(row)
+
     print(f"Metrics saved to {csv_path}")
 
 
