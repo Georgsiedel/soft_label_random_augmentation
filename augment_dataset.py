@@ -1,11 +1,9 @@
 import torch
 import numpy as np
-import matplotlib.pyplot as plt
 from functools import reduce
 from typing import Optional, List
 import os
 
-import torchvision
 from torchvision import datasets, transforms
 
 from augmentations.trivial_augment import CustomTrivialAugmentWide

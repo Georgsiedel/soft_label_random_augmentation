@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     # Load the saved model weights
     net = WideResNet_28_4(num_classes=10)
-    PATH = "visualization/models/robust_no_TA_augments.pth"
+    PATH = "models/pretrained/noTA_CIFAR10.pth"
     net = torch.nn.DataParallel(net)
     state_dict = torch.load(PATH, map_location=torch.device("cpu"), weights_only=False)
     net.load_state_dict(state_dict["model_state_dict"], strict=False)
