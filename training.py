@@ -181,9 +181,11 @@ def train(
         f"-p-{random_erasing_p}-max-{random_erasing_max_scale}"
         f"_reweight-{reweight}_seed-{seed}.pth"
     )
-    path = f"{save_dir}/{dataset}/{fname}"
-    torch.save(net.state_dict(), path)
-    print(f"Model saved to {path}")
+    folder_path = f"{save_dir}/{dataset}"
+    os.makedirs(folder_path, exist_ok=True)  # ensure parent exists
+    model_path = os.path.join(folder_path, fname)
+    torch.save(net.state_dict(), model_path)
+    print(f"Model saved to {model_path}")
 
     # 7. Final clean accuracy
     net.eval()
