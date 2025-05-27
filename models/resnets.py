@@ -2,6 +2,27 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
 import numpy as np
+import torch
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def normalization_values(dataset):
+
+    if dataset == 'CIFAR10':
+        mean = torch.tensor([0.4914, 0.4822, 0.4465]).view(1, 3, 1, 1).to(device)
+        std = torch.tensor([0.247, 0.243, 0.261]).view(1, 3, 1, 1).to(device)
+    elif dataset == 'CIFAR100':
+        mean = torch.tensor([0.50707516, 0.48654887, 0.44091784]).view(1, 3, 1, 1).to(device)
+        std = torch.tensor([0.26733429, 0.25643846, 0.27615047]).view(1, 3, 1, 1).to(device)
+    elif (dataset == 'ImageNet' or dataset == 'TinyImageNet'):
+        mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).to(device)
+        std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).to(device)
+    elif dataset == 'NoisyMix':
+        mean = torch.tensor([0.5, 0.5, 0.5]).view(1, 3, 1, 1).to(device)
+        std = torch.tensor([0.5, 0.5, 0.5]).view(1, 3, 1, 1).to(device)
+    else:
+        print('no normalization values set for this dataset')
+
+    return mean, std
 
 # Manual implementation of ResNet18
 class BasicBlock(nn.Module):
@@ -135,7 +156,6 @@ class Bottleneck(nn.Module):
         return out
 
 
-
 class WideResNet(nn.Module):
     def __init__(self, depth, widen_factor, num_classes, dropout_rate=0.3, factor=1, block=WideBasic):
         super(WideResNet, self).__init__()
@@ -176,5 +196,19 @@ class WideResNet(nn.Module):
 
         return out
 
+class ReferenceWideResNet(WideResNet):
+    def __init__(self, dataset, depth, widen_factor, num_classes, dropout_rate=0.3, factor=1, block=WideBasic):
+        super(ReferenceWideResNet, self).__init__(depth, widen_factor, num_classes, dropout_rate, factor, block)
+        mean, std = normalization_values(dataset=dataset)
+        self.register_buffer('mu', mean)
+        self.register_buffer('sigma', std)
+    
+    def forward(self, x):
+        x = (x - self.mu) / self.sigma
+        return super().forward(x)
+
+
 def WideResNet_28_4(num_classes, factor=1, block=WideBasic, dropout_rate=0.3):
     return WideResNet(depth=28, widen_factor=4, dropout_rate=dropout_rate, num_classes=num_classes, factor=factor, block=block)
+def WideResNet_28_4_ref(dataset, num_classes, factor=1, block=WideBasic, dropout_rate=0.3):
+    return ReferenceWideResNet(dataset, depth=28, widen_factor=4, dropout_rate=dropout_rate, num_classes=num_classes, factor=factor, block=block)
