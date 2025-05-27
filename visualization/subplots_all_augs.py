@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from augmentations.random_crop import RandomCrop
-from curve_plotting import plot_severity_vs_confidence
-import scienceplots
+from visualization_utils import compute_occlusion_visibility
+from visualization_utils import plot_severity_vs_confidence
 import seaborn as sns
 import os
 from hvs_augmentations import model_confidence
@@ -476,8 +475,7 @@ if __name__ == "__main__":
     const_k = np.array(df_aug['mean_poly_k'])[31:]
     chance_constant_k = 0.5
 
-    random_crop = RandomCrop(n_class=10)
-    visibility = random_crop.compute_visibility(dim1=32, dim2=32, tx=0., ty=augmentation_magnitude)
+    visibility = compute_occlusion_visibility(dim1=32, dim2=32, tx=0., ty=augmentation_magnitude)
     k1 = 2
     k2 = 4
 
@@ -541,8 +539,7 @@ if __name__ == "__main__":
     const_k = np.array(df_aug['mean_poly_k'])[31:]
     chance_constant_k = 0.5
 
-    random_crop = RandomCrop(n_class=10)
-    visibility = random_crop.compute_visibility(dim1=32, dim2=32, tx=0., ty=augmentation_magnitude)
+    visibility = compute_occlusion_visibility(dim1=32, dim2=32, tx=0., ty=augmentation_magnitude)
     k1 = 2
     k2 = 4
 

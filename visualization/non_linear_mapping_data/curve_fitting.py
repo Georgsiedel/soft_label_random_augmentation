@@ -3,6 +3,7 @@ from scipy.optimize import curve_fit
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Optional
+import os
 
 
 def poly(x, a, b, c, d):
@@ -144,10 +145,16 @@ def compute_visibility(dim1: int, dim2: int, t: float) -> float:
 
 
 if __name__ == "__main__":
-    augmentation_type = "Solarize"
-    data = pd.read_csv(
-        f"/home/ekagra/Documents/GitHub/MasterArbeit/{augmentation_type}_MAPPING_results.csv"
+    
+    augmentation_type = "Rotate"
+    
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(
+        base_dir,
+        augmentation_type,
+        f"{augmentation_type}_MAPPING_results.csv"
     )
+    data = pd.read_csv(csv_path)
 
     data = data.sort_values(by="Severity")
     data.reset_index(drop=True, inplace=True)
@@ -156,38 +163,62 @@ if __name__ == "__main__":
     augmentation_std = data["Std"]
     model_accuracy = data["Accuracy"]
 
-    # visibility = compute_visibility(
-    #     dim1=32.0, dim2=32.0, t=augmentation_magnitude
-    # )
-    # visibility = augmentation_magnitude / 255.0
-    # visibility_abs = abs(augmentation_magnitude)
+    """Posterize"""
+    #unique_augmentation_magnitudes, unique_indices = np.unique(augmentation_magnitude, return_index=True)
+    #scaled_magnitudes = (unique_augmentation_magnitudes - 2) / 6
+    #unique_model_accuracy = model_accuracy[unique_indices]
 
-    """TEST Posterize and Solarize"""
-    augmentation_magnitudes = augmentation_magnitude / 255.0
+    """Solarize"""
     # augmentation_magnitudes = augmentation_magnitude
-    unique_augmentation_magnitudes, unique_indices = np.unique(augmentation_magnitudes, return_index=True)
+    #unique_augmentation_magnitudes, unique_indices = np.unique(augmentation_magnitude, return_index=True)
+    #scaled_magnitudes = (unique_augmentation_magnitudes) 
+    #unique_model_accuracy = model_accuracy[unique_indices]
+
+    """Translate X Y """
+    # augmentation_magnitudes = augmentation_magnitude
+    #unique_augmentation_magnitudes, unique_indices = np.unique(augmentation_magnitude, return_index=True)
+    #scaled_magnitudes = (unique_augmentation_magnitudes / 32) 
+    #unique_model_accuracy = model_accuracy[unique_indices]
+    """Rotate """
+    # augmentation_magnitudes = augmentation_magnitude
+    unique_augmentation_magnitudes, unique_indices = np.unique(augmentation_magnitude, return_index=True)
+    scaled_magnitudes = (unique_augmentation_magnitudes / 135) 
     unique_model_accuracy = model_accuracy[unique_indices]
 
-    k1 = 1
-    k2 = 2
-    k3 = 3
-    k4 = 4
+    k1 = 4
+    k2 = 3
+    k3 = 2
+    k4 = 10
     chance = min(model_accuracy)
+    #chance =0.32
     print(f"Minimum Chance: {chance}")
-    confidence_scores1 = 1 - (1 - chance) * (1 - unique_augmentation_magnitudes) ** k1
-    confidence_scores2 = 1 - (1 - chance) * (1 - unique_augmentation_magnitudes) ** k2
-    confidence_scores3 = 1 - (1 - chance) * (1 - unique_augmentation_magnitudes) ** k3
-    confidence_scores4 = 1 - (1 - chance) * (1 - unique_augmentation_magnitudes) ** k4
+    #confidence_scores1 = 1 - (1 - chance) * (1 - scaled_magnitudes) ** k1
+    #confidence_scores2 = 1 - (1 - chance) * (1 - scaled_magnitudes) ** k2
+    #confidence_scores3 = 1 - (1 - chance) * (1 - scaled_magnitudes) ** k3
+    #confidence_scores4 = 1 - (1 - chance) * (1 - scaled_magnitudes) ** k4
+
+    confidence_scores1 = 1 - (1 - chance) * (abs(scaled_magnitudes)) ** k1
+    confidence_scores2 = 1 - (1 - chance) * (abs(scaled_magnitudes)) ** k2
+    confidence_scores3 = 1 - (1 - chance) * (abs(scaled_magnitudes)) ** k3
+    confidence_scores4 = 1 - (1 - chance) * (abs(scaled_magnitudes)) ** k4
     
     # # plot the curves
     plt.figure(figsize=(10, 6))
     plt.plot(unique_augmentation_magnitudes, unique_model_accuracy, "--", label="Model Outputs", color="red")
     plt.plot(unique_augmentation_magnitudes, confidence_scores1, "-", label=f"k={k1}", color="blue")
-    # plt.plot(unique_augmentation_magnitudes, confidence_scores2, "-", label=f"k={k2}", color="green")
-    # plt.plot(unique_augmentation_magnitudes, confidence_scores3, "-", label=f"k={k3}", color="purple")
-    # plt.plot(unique_augmentation_magnitudes, confidence_scores4, "-", label=f"k={k4}", color="magenta")
+    plt.plot(unique_augmentation_magnitudes, confidence_scores2, "-", label=f"k={k2}", color="green")
+    plt.plot(unique_augmentation_magnitudes, confidence_scores3, "-", label=f"k={k3}", color="purple")
+    plt.plot(unique_augmentation_magnitudes, confidence_scores4, "-", label=f"k={k4}", color="magenta")
     plt.legend()
     plt.show()
+    
+
+    # visibility = compute_visibility(
+    #     dim1=32.0, dim2=32.0, t=augmentation_magnitude
+    # )
+    # visibility = augmentation_magnitude / 255.0
+    # visibility_abs = abs(augmentation_magnitude)
+    
     """TEST"""
 
     # chance = min(model_accuracy)
