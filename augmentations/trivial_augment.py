@@ -131,14 +131,14 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         """MODIFICATION"""
 
 
-    def _augmentation_space(self, num_bins: int, selected_transforms: Optional[List[str]] = None) -> Dict[str, Tuple[Tensor, bool]]:
+    def _augmentation_space(self, num_bins: int, selected_transforms: Optional[List[str]] = None, height: int=32, width: int=32) -> Dict[str, Tuple[Tensor, bool]]:
         # Define the full augmentation space
         augmentation_space = {
             "Identity": (torch.tensor(0.0), False),
             "ShearX": (torch.linspace(0.0, 0.99, num_bins), True),
             "ShearY": (torch.linspace(0.0, 0.99, num_bins), True),
-            "TranslateX": (torch.linspace(0.0, 32.0, num_bins), True),
-            "TranslateY": (torch.linspace(0.0, 32.0, num_bins), True),
+            "TranslateX": (torch.linspace(0.0, float(height), num_bins), True),
+            "TranslateY": (torch.linspace(0.0, float(width), num_bins), True),
             "Rotate": (torch.linspace(0.0, 135.0, num_bins), True),
             "Brightness": (torch.linspace(0.0, 0.99, num_bins), True),
             "Color": (torch.linspace(0.0, 0.99, num_bins), True),
@@ -245,8 +245,8 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         return im, op_name, magnitude
 
     def apply_custom_augmentation(self, im: Tensor) -> Tuple[Tensor, List[float]]:
-
-        aug_space = self._augmentation_space(self.num_magnitude_bins, selected_transforms=self.selected_transforms)
+        _ , height, width = F.get_dimensions(im)
+        aug_space = self._augmentation_space(self.num_magnitude_bins, selected_transforms=self.selected_transforms, height=height, width=width)
         augment_im, augmentation_type, augmentation_magnitude = self.apply_standard_augmentation(im, aug_space)
         confidence_aa = 1.0  # Default value
         dim1, dim2 = im.shape[1], im.shape[2]

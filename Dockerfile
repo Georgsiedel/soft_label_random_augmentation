@@ -23,6 +23,17 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Upgrade pip in the virtual environment
 RUN pip install --upgrade pip
 
+# Add arguments for UID and GID 
+# --> ensure new directories are created with the correct permissions
+ARG UID
+ARG GID
+# Create a user with the specified UID and GID
+RUN groupadd -g $GID appgroup \
+    && useradd -m -u $UID -g appgroup appuser
+# Switch to the new user
+USER appuser
+
+
 # Set the working directory inside the container
 WORKDIR /workspace
 
