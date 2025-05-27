@@ -116,7 +116,7 @@ def create_transforms(
     augmentation_sign: bool = False,
     dataset_name: str = "CIFAR10",
     seed: Optional[int] = None,
-    mapping_approach: Optional[str] = "fixed_params",
+    mapping_approach: Optional[str] = "polynomial_chance",
 ) -> Optional[tuple]:
     """Creates preprocessing and augmentation transformations.
 

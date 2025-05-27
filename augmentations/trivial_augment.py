@@ -113,7 +113,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         selected_transforms: Optional[List[str]] = None,
         get_signed: bool = False,
         chance: float = 0.1,
-        mapping_approach: str = "fixed_params",
+        mapping_approach: str = "polynomial_chance",
     ):
         super().__init__()
         self.soft = soft
@@ -292,12 +292,15 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
-                    """Mapping function from Rotation HVS"""
-                    k = 1.5  # 1.5, 3
-                    chance = 0.224  # 0.224
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
+                    """Mapping function from Model Accuracy"""
+                    k = 1.0  # 1.5 1.0
+                    chance = 0.9315  # 0.224 0.9315
                     confidence_aa = 1 - (1 - chance) * abs(augmentation_magnitude) ** k
-                elif self.mapping_approach=="fixed_params":
+                elif self.mapping_approach=="polynomial_chance":
+                    """Fixed Parameters"""
+                    confidence_aa = 1 - (1 - self.chance) * abs(augmentation_magnitude) ** self.k
+                elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
                     confidence_aa = 1 - (1 - self.chance) * abs(augmentation_magnitude) ** self.k
                 elif self.mapping_approach=="exact_hvs":
@@ -319,12 +322,15 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
-                    """Mapping function from Rotation HVS"""
-                    k = 1.5  # 1.5, 3
-                    chance = 0.226  # 0.226
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
+                    """Mapping function from Model Accuracy"""
+                    k = 1.0  # 1.5, 1.0
+                    chance = 0.226  # 0.226 0.9315
                     confidence_aa = 1 - (1 - chance) * abs(augmentation_magnitude) ** k
-                elif self.mapping_approach=="fixed_params":
+                elif self.mapping_approach=="polynomial_chance":
+                    """Fixed Parameters"""
+                    confidence_aa = 1 - (1 - self.chance) * abs(augmentation_magnitude) ** self.k
+                elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
                     confidence_aa = 1 - (1 - self.chance) * abs(augmentation_magnitude) ** self.k
                 elif self.mapping_approach=="exact_hvs":
@@ -345,15 +351,21 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
-                    """Mapping function from Translation HVS"""
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
+                    """Mapping function from Occlusion HVS and model accuracy"""
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=augmentation_magnitude, ty=0
                     )
-                    k = 2               # 2, 4
-                    chance = 0.102        # 0.102, 0.216 
+                    k = 3               # 2, 4
+                    chance = 0.216        # 0.102, 0.216 
                     confidence_aa = 1 - (1 - chance) * (1 - visibility) ** k
-                elif self.mapping_approach=="fixed_params":
+                elif self.mapping_approach=="polynomial_chance":
+                    """Fixed Parameters"""
+                    visibility = self.compute_visibility(
+                        dim1=dim1, dim2=dim2, tx=augmentation_magnitude, ty=0
+                    )
+                    confidence_aa = 1 - (1 - self.chance) * (1 - visibility) ** self.k
+                elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=augmentation_magnitude, ty=0
@@ -369,15 +381,21 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
-                    """Mapping function from Translation HVS"""
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
+                    """Mapping function from Occlusion HVS and model accuracy"""
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0, ty=augmentation_magnitude
                     )
                     k = 2                                   # 2, 4
-                    chance = 0.102                          # 0.102, 0.216
+                    chance = 0.216                          # 0.102, 0.216
                     confidence_aa = 1 - (1 - chance) * (1 - visibility) ** k
-                elif self.mapping_approach=="fixed_params":
+                elif self.mapping_approach=="polynomial_chance":
+                    """Fixed Parameters"""
+                    visibility = self.compute_visibility(
+                        dim1=dim1, dim2=dim2, tx=0, ty=augmentation_magnitude
+                    )
+                    confidence_aa = 1 - (1 - self.chance) * (1 - visibility) ** self.k
+                elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0, ty=augmentation_magnitude
@@ -393,16 +411,23 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Contrast HVS"""
-                    k_neg, k_pos = 3, 2                     # (3, 2), (20, 3) 
+                    k_neg, k_pos = 5, 3                     # (3, 2), (20, 3) 
                     chance_pos = 0.86                       # model_acc[-1]
                     chance_neg = 0.102                      # 0.102, 0.32
                     if augmentation_magnitude>0.0:
                         confidence_aa = 1 - (1 - chance_pos) * (augmentation_magnitude) ** k_pos
                     else:
                         confidence_aa = 1 - (1 - chance_neg) * (abs(augmentation_magnitude)) ** k_neg
-                elif self.mapping_approach=="fixed_params":
+                elif self.mapping_approach=="polynomial_chance":
+                    """Fixed Parameters"""
+                    #if augmentation_magnitude>0.0:
+                    #    confidence_aa = 1.0
+                    #else:
+                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
+                    
+                elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
@@ -422,16 +447,22 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Contrast HVS"""
-                    k_neg, k_pos = 3, 2                # (3, 2), (20, 3) 
+                    k_neg, k_pos = 4, 2                # (3, 2), (20, 3) 
                     chance_pos = 0.976                   # model_acc[-1]
-                    chance_neg = 0.102                   # 0.102, 0.32
+                    chance_neg = 0.32                   # 0.102, 0.32
                     if augmentation_magnitude>0.0:
                         confidence_aa = 1 - (1 - chance_pos) * (augmentation_magnitude) ** k_pos
                     else:
                         confidence_aa = 1 - (1 - chance_neg) * (abs(augmentation_magnitude)) ** k_neg
-                elif self.mapping_approach=="fixed_params":
+                elif self.mapping_approach=="polynomial_chance":
+                    """Fixed Parameters"""
+                    #if augmentation_magnitude>0.0:
+                    #    confidence_aa = 1.0
+                    #else:
+                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
+                elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
@@ -450,27 +481,34 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Model Accuracy"""
-                    k = 2                       # 2, 5   
-                    chance = 0.1               # 0.1, 0.95   
-                    #if augmentation_magnitude>0.0:
-                    #    confidence_aa = 1.0
-                    #else:
-                    confidence_aa = 1 - (1 - chance) * (abs(augmentation_magnitude)) ** k
-                elif self.mapping_approach=="fixed_params":
+                    k = 3                       # 2, 5   
+                    chance = 0.95               # 0.1, 0.95   
+                    if augmentation_magnitude>0.0:
+                        confidence_aa = 1.0
+                    else:
+                        confidence_aa = 1 - (1 - chance) * (abs(augmentation_magnitude)) ** k
+                elif self.mapping_approach=="polynomial_chance":
                     """Fixed Parameters"""
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
                     #else:
                     confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
                     
-                elif self.mapping_approach=="exact_hvs":
-                    """Exact Contrast HVS"""
+                elif self.mapping_approach=="polynomial_custom":
+                    """Fixed Parameters"""
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
                     #else:
-                    confidence_aa = contrast_hvs[::-1][augmentation_idx]
+                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
+                    
+                #elif self.mapping_approach=="exact_hvs":
+                #    """Exact Contrast HVS"""
+                    #if augmentation_magnitude>0.0:
+                    #    confidence_aa = 1.0
+                    #else:
+                #    confidence_aa = contrast_hvs[::-1][augmentation_idx]
                 else:
                     confidence_aa = 1.0
 
@@ -478,43 +516,53 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Model Accuracy"""
-                    k = 2                       # 2, 7   
-                    chance = 0.1               # 0.1, 0.884   
-                    #if augmentation_magnitude>0.0:
-                    #    confidence_aa = 1.0
-                    #else:
-                    confidence_aa = 1 - (1 - chance) * (abs(augmentation_magnitude)) ** k
-                elif self.mapping_approach=="fixed_params":
+                    k = 4                       # 2, 7   
+                    chance = 0.884                 # 0.1, 0.884   
+                    if augmentation_magnitude>0.0:
+                        confidence_aa = 1.0
+                    else:
+                        confidence_aa = 1 - (1 - chance) * (abs(augmentation_magnitude)) ** k
+                elif self.mapping_approach=="polynomial_chance":
                     """Fixed Parameters"""
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
                     #else:
                     confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
                     
-                elif self.mapping_approach=="exact_hvs":
-                    """Exact Contrast HVS"""
+                elif self.mapping_approach=="polynomial_custom":
+                    """Fixed Parameters"""
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
                     #else:
-                    confidence_aa = contrast_hvs[::-1][augmentation_idx]
+                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
+                    
+                #elif self.mapping_approach=="exact_hvs":
+                #    """Exact Contrast HVS"""
+                    #if augmentation_magnitude>0.0:
+                    #    confidence_aa = 1.0
+                    #else:
+                #    confidence_aa = contrast_hvs[::-1][augmentation_idx]
                 else:
                     confidence_aa = 1.0
 
             elif augmentation_type == "Posterize":
-                augmentation_magnitude_normalized = float(augmentation_magnitude / 8.0)
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Model Accuracy"""
-                    k = 1.5           # 1.5, 2
-                    chance = 0.1      # 0.1, 0.86
-                    confidence_aa = 1 - (1 - chance) * (1 - augmentation_magnitude_normalized) ** k
-                elif self.mapping_approach=="fixed_params":
+                    scaled_magnitude = (augmentation_magnitude - 2) / 6
+                    k = 10           
+                    chance = 0.86      
+                    confidence_aa = 1 - (1 - chance) * (1 - scaled_magnitude) ** k
+                elif self.mapping_approach=="polynomial_chance":
                     """Fixed Parameters"""
-                    confidence_aa = 1 - (1 - self.chance) * (1 - augmentation_magnitude_normalized) ** self.k
+                    confidence_aa = 1 - (1 - self.chance) * (1 - float(augmentation_magnitude / 8.0)) ** self.k
+                elif self.mapping_approach=="polynomial_custom":
+                    """Fixed Parameters"""
+                    confidence_aa = 1 - (1 - self.chance) * (1 - float(augmentation_magnitude / 8.0)) ** self.k
                 else:
                     confidence_aa = 1.0
                 
@@ -522,12 +570,15 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Model Accuracy"""
-                    k = 1.5           # 1.5, 2
-                    chance = 0.1  # 0.1, 0.512
+                    k = 1.5          
+                    chance = 0.512
                     confidence_aa = 1 - (1 - chance) * (1 - augmentation_magnitude) ** k
-                elif self.mapping_approach=="fixed_params":
+                elif self.mapping_approach=="polynomial_chance":
+                    """Fixed Parameters"""
+                    confidence_aa = 1 - (1 - self.chance) * (1 - augmentation_magnitude) ** self.k
+                elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
                     confidence_aa = 1 - (1 - self.chance) * (1 - augmentation_magnitude) ** self.k
                 else:
@@ -537,12 +588,15 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 if self.mapping_approach=="exact_model_accuracy":
                     """Exact Model Accuracy"""
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
-                elif self.mapping_approach=="smoothened_hvs":
+                elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Rotation HVS"""
-                    k = 2  # 2, 3
-                    chance = 0.2 # 0.2, 0.9315
+                    k = 1  # 2, 3
+                    chance = 0.9315 # 0.2, 0.9315
                     confidence_aa = 1 - (1 - chance) * (abs(augmentation_magnitude) / 135.0) ** k
-                elif self.mapping_approach=="fixed_params":
+                elif self.mapping_approach=="polynomial_chance":
+                    """Fixed Parameters"""
+                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude) / 135.0) ** self.k
+                elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
                     confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude) / 135.0) ** self.k
                 elif self.mapping_approach=="exact_hvs":

@@ -38,7 +38,7 @@ def train(
     epochs: int = 300,
     learning_rate: float = 0.1,
     reweight: bool = False,
-    mapping_approach: str = "fixed_params",
+    mapping_approach: str = "polynomial_chance",
     save_dir: str = "../trained_models/soft_augmentation",
     results_dir: str = "results"
 ):
