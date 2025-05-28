@@ -23,6 +23,15 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Upgrade pip in the virtual environment
 RUN pip install --upgrade pip
 
+# Set the working directory inside the container
+WORKDIR /workspace
+
+# Install Python dependencies (requirements.txt should be in your repo)
+COPY requirements.txt /workspace/
+RUN apt-get update && apt-get install -y libgl1-mesa-glx
+RUN apt-get update && apt-get install -y libglib2.0-0
+RUN pip install -r /workspace/requirements.txt
+
 # Add arguments for UID and GID 
 # --> ensure new directories are created with the correct permissions
 ARG UID
@@ -32,16 +41,6 @@ RUN groupadd -g $GID appgroup \
     && useradd -m -u $UID -g appgroup appuser
 # Switch to the new user
 USER appuser
-
-
-# Set the working directory inside the container
-WORKDIR /workspace
-
-# Install Python dependencies (requirements.txt should be in your repo)
-COPY requirements.txt /workspace/
-RUN apt-get update && apt-get install -y libgl1-mesa-glx
-RUN apt-get update && apt-get install -y libglib2.0-0
-RUN pip install -r /workspace/requirements.txt
 
 # Copy your repository code into the container
 COPY . /workspace/
