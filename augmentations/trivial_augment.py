@@ -113,21 +113,24 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         selected_transforms: Optional[List[str]] = None,
         get_signed: bool = False,
         chance: float = 0.1,
+        custom_chance: float = 0.7,
+        k: int = 2,
         mapping_approach: str = "polynomial_chance",
     ):
         super().__init__()
-        self.soft = soft
         self.num_magnitude_bins = num_magnitude_bins
         self.interpolation = interpolation
         self.fill = fill
-        self.chance = chance
-        self.mapping_approach = mapping_approach
-
+        
         """MODIFICATION"""
+        self.soft = soft
+        self.chance = chance
+        self.custom_chance = custom_chance
+        self.mapping_approach = mapping_approach
         self.severity = severity
         self.selected_transforms = selected_transforms
         self.get_signed = get_signed
-        self.k = 2
+        self.k = k
         """MODIFICATION"""
 
 
@@ -302,7 +305,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa = 1 - (1 - self.chance) * abs(augmentation_magnitude) ** self.k
                 elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
-                    confidence_aa = 1 - (1 - self.chance) * abs(augmentation_magnitude) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * abs(augmentation_magnitude) ** self.k
                 elif self.mapping_approach=="exact_hvs":
                     """Exact Rotation HVS"""
                     confidence_aa = rotation_hvs[augmentation_idx]
@@ -325,14 +328,14 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Model Accuracy"""
                     k = 1.0  # 1.5, 1.0
-                    chance = 0.226  # 0.226 0.9315
+                    chance = 0.9315  # 0.226 0.9315
                     confidence_aa = 1 - (1 - chance) * abs(augmentation_magnitude) ** k
                 elif self.mapping_approach=="polynomial_chance":
                     """Fixed Parameters"""
                     confidence_aa = 1 - (1 - self.chance) * abs(augmentation_magnitude) ** self.k
                 elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
-                    confidence_aa = 1 - (1 - self.chance) * abs(augmentation_magnitude) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * abs(augmentation_magnitude) ** self.k
                 elif self.mapping_approach=="exact_hvs":
                     """Exact Rotation HVS"""
                     confidence_aa = rotation_hvs[augmentation_idx]
@@ -356,7 +359,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=augmentation_magnitude, ty=0
                     )
-                    k = 3               # 2, 4
+                    k = 4               # 2, 4
                     chance = 0.216        # 0.102, 0.216 
                     confidence_aa = 1 - (1 - chance) * (1 - visibility) ** k
                 elif self.mapping_approach=="polynomial_chance":
@@ -370,7 +373,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=augmentation_magnitude, ty=0
                     )
-                    confidence_aa = 1 - (1 - self.chance) * (1 - visibility) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * (1 - visibility) ** self.k
                 elif self.mapping_approach=="exact_hvs":
                     """Exact Occlusion HVS"""
                     confidence_aa = occlusion_hvs[::-1][augmentation_idx]
@@ -386,7 +389,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0, ty=augmentation_magnitude
                     )
-                    k = 2                                   # 2, 4
+                    k = 4                                   # 2, 4
                     chance = 0.216                          # 0.102, 0.216
                     confidence_aa = 1 - (1 - chance) * (1 - visibility) ** k
                 elif self.mapping_approach=="polynomial_chance":
@@ -400,7 +403,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     visibility = self.compute_visibility(
                         dim1=dim1, dim2=dim2, tx=0, ty=augmentation_magnitude
                     )
-                    confidence_aa = 1 - (1 - self.chance) * (1 - visibility) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * (1 - visibility) ** self.k
                 elif self.mapping_approach=="exact_hvs":
                     """Exact Occlusion HVS"""
                     confidence_aa = occlusion_hvs[::-1][augmentation_idx]
@@ -415,7 +418,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     """Mapping function from Contrast HVS"""
                     k_neg, k_pos = 5, 3                     # (3, 2), (20, 3) 
                     chance_pos = 0.86                       # model_acc[-1]
-                    chance_neg = 0.102                      # 0.102, 0.32
+                    chance_neg = 0.32                       # 0.102, 0.32
                     if augmentation_magnitude>0.0:
                         confidence_aa = 1 - (1 - chance_pos) * (augmentation_magnitude) ** k_pos
                     else:
@@ -432,7 +435,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
                     #else:
-                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * (abs(augmentation_magnitude)) ** self.k
                     
                 elif self.mapping_approach=="exact_hvs":
                     """Exact Contrast HVS"""
@@ -449,7 +452,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa, _ = self.model_accuracy_mapping(augmentation_magnitude, augmentation_type)
                 elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Contrast HVS"""
-                    k_neg, k_pos = 4, 2                # (3, 2), (20, 3) 
+                    k_neg, k_pos = 5, 2                # (3, 2), (20, 3) 
                     chance_pos = 0.976                   # model_acc[-1]
                     chance_neg = 0.32                   # 0.102, 0.32
                     if augmentation_magnitude>0.0:
@@ -467,7 +470,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
                     #else:
-                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * (abs(augmentation_magnitude)) ** self.k
                 elif self.mapping_approach=="exact_hvs":
                     """Exact Contrast HVS"""
                     #if augmentation_magnitude>0.0:
@@ -501,7 +504,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
                     #else:
-                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * (abs(augmentation_magnitude)) ** self.k
                     
                 #elif self.mapping_approach=="exact_hvs":
                 #    """Exact Contrast HVS"""
@@ -519,7 +522,8 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                 elif self.mapping_approach=="smoothened_hvs_or_model_accuracy":
                     """Mapping function from Model Accuracy"""
                     k = 4                       # 2, 7   
-                    chance = 0.884                 # 0.1, 0.884   
+                    chance_neg = 0.884                 # 0.1, 0.884 
+                    chance_pos = 0.884  
                     if augmentation_magnitude>0.0:
                         confidence_aa = 1.0
                     else:
@@ -536,7 +540,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     #if augmentation_magnitude>0.0:
                     #    confidence_aa = 1.0
                     #else:
-                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude)) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * (abs(augmentation_magnitude)) ** self.k
                     
                 #elif self.mapping_approach=="exact_hvs":
                 #    """Exact Contrast HVS"""
@@ -562,7 +566,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa = 1 - (1 - self.chance) * (1 - float(augmentation_magnitude / 8.0)) ** self.k
                 elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
-                    confidence_aa = 1 - (1 - self.chance) * (1 - float(augmentation_magnitude / 8.0)) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * (1 - float(augmentation_magnitude / 8.0)) ** self.k
                 else:
                     confidence_aa = 1.0
                 
@@ -580,7 +584,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa = 1 - (1 - self.chance) * (1 - augmentation_magnitude) ** self.k
                 elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
-                    confidence_aa = 1 - (1 - self.chance) * (1 - augmentation_magnitude) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * (1 - augmentation_magnitude) ** self.k
                 else:
                     confidence_aa = 1.0
 
@@ -598,7 +602,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
                     confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude) / 135.0) ** self.k
                 elif self.mapping_approach=="polynomial_custom":
                     """Fixed Parameters"""
-                    confidence_aa = 1 - (1 - self.chance) * (abs(augmentation_magnitude) / 135.0) ** self.k
+                    confidence_aa = 1 - (1 - self.custom_chance) * (abs(augmentation_magnitude) / 135.0) ** self.k
                 elif self.mapping_approach=="exact_hvs":
                     """Exact Rotation HVS"""
                     confidence_aa = rotation_hvs[augmentation_idx]

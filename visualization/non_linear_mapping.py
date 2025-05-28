@@ -13,7 +13,7 @@ from utils.plot_non_linear_curve import (
     plot_mean_std_from_csv,
 )
 from wideresnet import WideResNet_28_4
-from visualization.visualization_utils import evaluate_model
+from visualization_utils import evaluate_model
 import torch
 import time
 from augment_dataset import seed_worker
