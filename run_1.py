@@ -7,147 +7,203 @@ if __name__ == "__main__":
                 train(seed = seed,
                         dataset="CIFAR100",
                         random_cropping=0,
-                        trivial_augment=1,
+                        trivial_augment=2,
                         random_erasing=0,
                         random_erasing_p=0.5,
                         random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate","ShearX"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate","ShearX","Solarize"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate","ShearX","Solarize","TranslateX"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate","ShearX","Solarize","TranslateX","Contrast"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate","ShearX","Solarize","TranslateX","Contrast","ShearY"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate","ShearX","Solarize","TranslateX","Contrast","ShearY","Sharpness"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate","ShearX","Solarize","TranslateX","Contrast","ShearY","Sharpness","Brightness"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate","ShearX","Solarize","TranslateX","Contrast","ShearY","Sharpness","Brightness","Color"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
+                        selected_transforms=["Rotate","ShearX","Solarize","TranslateX","Contrast","ShearY","Sharpness","Brightness","Color","Posterize"]
+                        )
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=0,
+                        trivial_augment=2,
+                        random_erasing=0,
+                        random_erasing_p=0.5,
+                        random_erasing_max_scale=0.4,
+                        reweight=False,
                         selected_transforms=["Rotate","ShearX","Solarize","TranslateX","Contrast","ShearY","Sharpness","Brightness","Color","Posterize","TranslateY"]
-                        )
-                
-        for seed in [4]:        
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=0.5,
-                        random_erasing_max_scale=0.4,
-                        reweight=True)
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=0.5,
-                        random_erasing_max_scale=0.6,
-                        reweight=True)
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=0.5,
-                        random_erasing_max_scale=0.8,
-                        reweight=True
-                        )
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=0.5,
-                        random_erasing_max_scale=1.0,
-                        reweight=True
-                        )
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=0.75,
-                        random_erasing_max_scale=0.4,
-                        reweight=True
-                        )
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=0.75,
-                        random_erasing_max_scale=0.6,
-                        reweight=True
-                        )
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=0.75,
-                        random_erasing_max_scale=0.8,
-                        reweight=True
-                        )
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=0.75,
-                        random_erasing_max_scale=1.0,
-                        reweight=True
-                        )
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=1.0,
-                        random_erasing_max_scale=0.4,
-                        reweight=True
-                        )
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=1.0,
-                        random_erasing_max_scale=0.6,
-                        reweight=True
-                        )
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=1.0,
-                        random_erasing_max_scale=0.8,
-                        reweight=True
-                        )
-                train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=0,
-                        trivial_augment=0,
-                        random_erasing=2,
-                        random_erasing_p=1.0,
-                        random_erasing_max_scale=1.0,
-                        reweight=True
                         )
         
         for seed in [0]: 
                 train(seed = seed,
                         dataset="CIFAR10",
-                        random_cropping=2,
-                        trivial_augment=1,
-                        random_erasing=0,
-                        random_erasing_p=0.5,
+                        random_cropping=0,
+                        trivial_augment=0,
+                        random_erasing=2,
+                        random_erasing_p=0.75,
+                        random_erasing_max_scale=0.4,
+                        reweight=False
+                        )
+                train(seed = seed,
+                        dataset="CIFAR10",
+                        random_cropping=0,
+                        trivial_augment=0,
+                        random_erasing=2,
+                        random_erasing_p=0.75,
                         random_erasing_max_scale=0.4,
                         reweight=True
                         )
                 train(seed = seed,
-                        dataset="CIFAR100",
-                        random_cropping=2,
+                        dataset="CIFAR10",
+                        random_cropping=0,
                         trivial_augment=1,
-                        random_erasing=0,
-                        random_erasing_p=0.5,
+                        random_erasing=2,
+                        random_erasing_p=0.75,
+                        random_erasing_max_scale=0.4,
+                        reweight=False
+                        )
+                train(seed = seed,
+                        dataset="CIFAR10",
+                        random_cropping=0,
+                        trivial_augment=1,
+                        random_erasing=2,
+                        random_erasing_p=0.75,
                         random_erasing_max_scale=0.4,
                         reweight=True
                         )
+                train(seed = seed,
+                        dataset="CIFAR10",
+                        random_cropping=2,
+                        trivial_augment=0,
+                        random_erasing=2,
+                        random_erasing_p=0.75,
+                        random_erasing_max_scale=0.4,
+                        reweight=False
+                        )
+                train(seed = seed,
+                        dataset="CIFAR10",
+                        random_cropping=2,
+                        trivial_augment=0,
+                        random_erasing=2,
+                        random_erasing_p=0.75,
+                        random_erasing_max_scale=0.4,
+                        reweight=True
+                        )
+                train(seed = seed,
+                        dataset="CIFAR10",
+                        random_cropping=2,
+                        trivial_augment=1,
+                        random_erasing=2,
+                        random_erasing_p=0.75,
+                        random_erasing_max_scale=0.4,
+                        reweight=False
+                        )
+                train(seed = seed,
+                        dataset="CIFAR10",
+                        random_cropping=2,
+                        trivial_augment=1,
+                        random_erasing=2,
+                        random_erasing_p=0.75,
+                        random_erasing_max_scale=0.4,
+                        reweight=True
+                        )
+        for seed in [3,4]:    
                 train(seed = seed,
                         dataset="TinyImageNet",
-                        random_cropping=2,
+                        random_cropping=1,
                         trivial_augment=1,
                         random_erasing=0,
-                        random_erasing_p=0.5,
-                        random_erasing_max_scale=0.4,
-                        reweight=True
-                        )
+                        random_erasing_p=0.75,
+                        random_erasing_max_scale=0.4
+                        ) 
+        for seed in [1]:    
+                train(seed = seed,
+                        dataset="CIFAR100",
+                        random_cropping=1,
+                        trivial_augment=1,
+                        random_erasing=0,
+                        random_erasing_p=0.75,
+                        random_erasing_max_scale=0.4
+                        ) 
                 
