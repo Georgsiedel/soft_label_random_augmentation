@@ -37,12 +37,13 @@ class CustomDataset(Dataset):
         return image, label
 
 class Placeholder_with_Confidence:
-    def __init__(self, default_confidence=1.0, default_magnitude = -1):
+    def __init__(self, default_confidence=1.0, default_magnitude = -1, default_type = 'Identity'):
         self.default_magnitude = default_magnitude
         self.default_conf = default_confidence
+        self.default_type = default_type
 
     def __call__(self, img):
-        return img, self.default_magnitude, self.default_conf
+        return img, self.default_type, self.default_magnitude, self.default_conf
 
 
 class AugmentedDataset(torch.utils.data.Dataset):
@@ -92,7 +93,7 @@ class AugmentedDataset(torch.utils.data.Dataset):
 
         prep_x = self.preprocess(x)
 
-        augment_x, augmentation_magnitude, confidences = self.transforms_augmentation(prep_x)
+        augment_x, augmentation_type, augmentation_magnitude, confidences = self.transforms_augmentation(prep_x)
         if isinstance(confidences, tuple):
             combined_confidence = self.get_confidence(confidences)
         elif isinstance(confidences, float):
@@ -100,7 +101,7 @@ class AugmentedDataset(torch.utils.data.Dataset):
         else:
             raise TypeError(f"Expected float or tuple of confidences but got {type(confidences)}")
 
-        return augment_x, y, combined_confidence, augmentation_magnitude
+        return augment_x, y, combined_confidence, augmentation_type, augmentation_magnitude
 
     def __len__(self):
         return len(self.dataset)
@@ -152,7 +153,7 @@ def create_transforms(
             augmentations.append(transforms.RandomCrop(32, padding=4))
 
     if trivial_augment == 0:
-        augmentations.append(Placeholder_with_Confidence(1.0, -1))
+        augmentations.append(Placeholder_with_Confidence(1.0, -1, 'Identity'))
     elif trivial_augment == 1:
         augmentations.append(CustomTrivialAugmentWide(
                     soft=False,
@@ -278,9 +279,9 @@ def seed_worker(worker_id):
     np.random.seed(worker_seed)
     random.seed(worker_seed)
 
-def visualize(seed=0, batch_size=36, selected_transforms=None, augmentation_sign=False,
+def visualize(seed=4, batch_size=15, selected_transforms=None, augmentation_sign=False,
               augmentation_severity=-1, dataset="TinyImageNet", random_cropping=0, trivial_augment=2,
-              random_erasing=2, random_erasing_p=0.5, random_erasing_max_scale=0.4, mapping_approach="polynomial_chance"):
+              random_erasing=2, random_erasing_p=0.3, random_erasing_max_scale=0.4, mapping_approach="exact_model_accuracy"):
     
     g = torch.Generator()
     g.manual_seed(seed)
@@ -311,8 +312,8 @@ def visualize(seed=0, batch_size=36, selected_transforms=None, augmentation_sign
     # Display a grid of images with labels and confidence scores
     classes = trainset.dataset.classes
     print(classes)
-    images, labels, confidences, _ = next(iter(trainloader))
-    display_image_grid(images, labels, confidences, batch_size=36, classes=classes)
+    images, labels, confidences, augmentation_types, augmentation_magnitude = next(iter(trainloader))
+    display_image_grid(images, labels, confidences, augmentation_types, batch_size=36, classes=classes)
     #print(f"Confidence: {confidences}")
 
 if __name__ == "__main__":

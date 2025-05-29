@@ -609,7 +609,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
         if isinstance(confidence_aa, torch.Tensor):
             confidence_aa = confidence_aa.item()
 
-        return augment_im, augmentation_magnitude, confidence_aa
+        return augment_im, augmentation_type, augmentation_magnitude, confidence_aa
         
     def __repr__(self):
         s = (
@@ -625,5 +625,5 @@ class CustomTrivialAugmentWide(torch.nn.Module):
     
     def forward(self, im: torch.Tensor) -> Tensor:
         # if self.soft:
-        aug_im, aug_mag, conf = self.apply_custom_augmentation(im)
-        return aug_im, aug_mag, conf
+        aug_im, aug_type, aug_mag, conf = self.apply_custom_augmentation(im)
+        return aug_im, aug_type, aug_mag, conf

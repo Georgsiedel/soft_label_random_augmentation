@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import torch
 
-def display_image_grid(images, labels, confidences, batch_size, classes):
+def display_image_grid(images, labels, confidences, augmentation_types, batch_size, classes):
     """
     Displays a grid of images with labels and confidence scores.
 
@@ -12,22 +12,22 @@ def display_image_grid(images, labels, confidences, batch_size, classes):
         batch_size (int): Number of images to display in the grid (should be 25 for a 5x5 grid).
         classes (list): List of class names for labeling.
     """
-    # Limit batch_size to 36 for a 6x6 grid
-    batch_size = min(batch_size, 36)
+    # Limit batch_size for the grid
+    batch_size = min(batch_size, 15)
     
     # Ensure confidences are correctly formatted as a tensor
     if isinstance(confidences, list):
         confidences = torch.tensor(confidences)
 
-    plt.figure(figsize=(12,7))
+    plt.figure(figsize=(6.4,4.5))
     for i in range(batch_size):
-        ax = plt.subplot(6, 6, i + 1)
+        ax = plt.subplot(3, 5, i + 1)
         # Convert image to numpy for display
         img = images[i].permute(1, 2, 0).numpy()  # From (C, H, W) to (H, W, C)
         ax.imshow(img)
         ax.set_title(
-            f"{classes[labels[i].item()]} ({confidences[i]:.2f})",
-            fontsize=8
+            f"{augmentation_types[i]}\n{classes[labels[i].item()]} ({confidences[i]:.2f})",
+            fontsize=8, pad=3
         )
         ax.axis("off")
 

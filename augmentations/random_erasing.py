@@ -148,7 +148,7 @@ class RandomErasing(torch.nn.Module):
         if not isinstance(tensor_image, torch.Tensor):
             raise TypeError(f"Expected Tensor Image but got {type(tensor_image)}")
 
-        confidences = img[2]
+        confidences = img[3]
 
         """MODIFICATION"""
 
@@ -181,7 +181,7 @@ class RandomErasing(torch.nn.Module):
 
             tensor_image = F.erase(tensor_image, x, y, h, w, v, self.inplace)
         
-        return tensor_image, img[1], self.ensure_tuple_and_append(confidences, confidence_re)
+        return tensor_image, img[1], img[2], self.ensure_tuple_and_append(confidences, confidence_re)
 
 
     def __repr__(self) -> str:

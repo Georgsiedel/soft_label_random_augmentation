@@ -109,7 +109,7 @@ def train(
             net.train()
             running_loss, correct_train, total_train = 0., 0, 0
 
-            for inputs, labels, combined_confidences, _ in trainloader:
+            for inputs, labels, combined_confidences, _, _ in trainloader:
                 inputs, labels = inputs.to(device), labels.to(device)
                 combined_confidences = combined_confidences.to(device)
                 optimizer.zero_grad()
