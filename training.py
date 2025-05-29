@@ -75,9 +75,10 @@ def train(
         transforms_augmentation=transforms_augmentation,
         dataset_name=dataset
     )
+    workers = 2 if dataset in ["CIFAR10", "CIFAR100"] else 4
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size, shuffle=True,
-        num_workers=2, worker_init_fn=seed_worker, generator=g
+        num_workers=workers, worker_init_fn=seed_worker, generator=g
     )
     testloader = torch.utils.data.DataLoader(
         testset, batch_size=batch_size, shuffle=False, num_workers=0
@@ -241,6 +242,8 @@ def train(
     if selected_transforms is not None:
         transforms_folder = "_".join(selected_transforms)
         folder_path = os.path.join(results_dir, dataset, transforms_folder)
+    elif mapping_approach != "polynomial_chance":
+        folder_path = os.path.join(results_dir, dataset, mapping_approach)
     else:
         folder_path = os.path.join(results_dir, dataset)
         
