@@ -279,8 +279,8 @@ def seed_worker(worker_id):
     random.seed(worker_seed)
 
 def visualize(seed=0, batch_size=36, selected_transforms=None, augmentation_sign=False,
-              augmentation_severity=-1, dataset="TinyImageNet", random_cropping=0, trivial_augment=0,
-              random_erasing=2, random_erasing_p=0.3, random_erasing_max_scale=0.1, mapping_approach="fixed_params"):
+              augmentation_severity=-1, dataset="TinyImageNet", random_cropping=0, trivial_augment=2,
+              random_erasing=2, random_erasing_p=0.5, random_erasing_max_scale=0.4, mapping_approach="polynomial_chance"):
     
     g = torch.Generator()
     g.manual_seed(seed)

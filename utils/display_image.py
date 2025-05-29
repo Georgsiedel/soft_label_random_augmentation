@@ -3,7 +3,7 @@ import torch
 
 def display_image_grid(images, labels, confidences, batch_size, classes):
     """
-    Displays a 5x5 grid of images with labels and confidence scores.
+    Displays a grid of images with labels and confidence scores.
 
     Args:
         images (torch.Tensor): Batch of images.
@@ -27,7 +27,7 @@ def display_image_grid(images, labels, confidences, batch_size, classes):
         ax.imshow(img)
         ax.set_title(
             f"{classes[labels[i].item()]} ({confidences[i]:.2f})",
-            fontsize=10
+            fontsize=8
         )
         ax.axis("off")
 
