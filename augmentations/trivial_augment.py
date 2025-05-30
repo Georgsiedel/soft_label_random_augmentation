@@ -256,7 +256,7 @@ class CustomTrivialAugmentWide(torch.nn.Module):
 
         if self.soft == False:
             # print(f"\nAugmentation info: {augment_info}\tconf: {confidence_aa}\n")
-            return augment_im, augmentation_magnitude, confidence_aa
+            return augment_im, augmentation_type, augmentation_magnitude, confidence_aa
         
         """Performance data obtained from available HVS"""
         occlusion_hvs = [0.216, 0.388, 0.51066667, 0.584, 0.65333333, 0.68533333, 0.68, 0.72666667, 0.75466667, 0.764, 0.776, 0.78758974, 0.79876923, 0.80994872, 0.82112821, 0.83230769, 0.84348718, 0.85466667, 0.86584615, 0.87702564, 0.88820513, 0.89938462, 0.9105641, 0.92174359, 0.93292308, 0.94410256, 0.95528205, 0.96646154, 0.97764103, 0.98882051, 1.]
