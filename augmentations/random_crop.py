@@ -79,7 +79,7 @@ class RandomCrop:
         if not isinstance(tensor_image, torch.Tensor):
             raise TypeError(f"Expected Tensor Image but got {type(tensor_image)}")
 
-        confidence_aa = image[2]
+        confidence_aa = image[3]
 
         dim1, dim2 = tensor_image.shape[1], tensor_image.shape[2]
 
@@ -112,4 +112,4 @@ class RandomCrop:
         else:
             confidence_rc = 1.0
         
-        return cropped_image, image[1], (confidence_aa, confidence_rc)
+        return cropped_image, image[1], image[2], (confidence_aa, confidence_rc)

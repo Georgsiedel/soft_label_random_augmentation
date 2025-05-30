@@ -5,6 +5,9 @@ services:
     build:
       context: . # Path to the Dockerfile (current directory)
       dockerfile: Dockerfile
+      args:
+        UID: "${UID}"
+        GID: "${GID}"
     shm_size: '128g'
     runtime: nvidia
     environment:

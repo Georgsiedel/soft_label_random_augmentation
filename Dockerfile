@@ -32,6 +32,16 @@ RUN apt-get update && apt-get install -y libgl1-mesa-glx
 RUN apt-get update && apt-get install -y libglib2.0-0
 RUN pip install -r /workspace/requirements.txt
 
+# Add arguments for UID and GID 
+# --> ensure new directories are created with the correct permissions
+ARG UID
+ARG GID
+# Create a user with the specified UID and GID
+RUN groupadd -g $GID appgroup \
+    && useradd -m -u $UID -g appgroup appuser
+# Switch to the new user
+USER appuser
+
 # Copy your repository code into the container
 COPY . /workspace/
 
