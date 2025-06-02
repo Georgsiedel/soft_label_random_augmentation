@@ -795,4 +795,4 @@ def individual_plots(augmentation_type):
 
 if __name__ == "__main__":
 
-    individual_plots("Posterize")
+    individual_plots("Contrast")
