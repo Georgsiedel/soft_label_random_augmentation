@@ -123,6 +123,12 @@ def train(
                         # (pretrained on same dataset, but none of the augmentations were used) 
                         combined_confidences = ref_outputs.max(1)
 
+                if mapping_approach == 'label_smoothing':
+                    #fixed confidence for classic label smoothing
+                    fixed_confidences = torch.full_like(combined_confidences, 0.9)
+                    # Replace the original confidences
+                    combined_confidences = fixed_confidences
+                
                 loss = soft_loss(
                     pred=outputs,
                     label=labels,
