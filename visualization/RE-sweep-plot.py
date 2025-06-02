@@ -113,6 +113,6 @@ handles, labels = axes[1].get_legend_handles_labels()
 fig.subplots_adjust(bottom=0.18)
 
 #fig.tight_layout()
-plt.show()
+#plt.show()
 file_name = "visualization/final_plots/RE-sweep.pdf"
 plt.savefig(file_name, format='pdf')
