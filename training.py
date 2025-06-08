@@ -200,7 +200,7 @@ def train(
     fname = (
         f"{dataset}_rc-{random_cropping}"
         f"_ta-{trivial_augment}_re-{random_erasing}"
-        f"-p-{random_erasing_p}-max-{random_erasing_max_scale}"
+        f"-p-{random_erasing_p}-max-{random_erasing_max_scale}_noise-{patch_gaussian}"
         f"_reweight-{reweight}_seed-{seed}.pth"
     )
     folder_path = f"{save_dir}/{dataset}"
