@@ -83,26 +83,38 @@ class AddPatchGaussian():
         - window_size: size of window. if -1, return full size mask
         """
         assert im_size >= 1
-        assert (1 <= window_size) or (window_size == -1)
+        assert window_size >= 1 or window_size == -1
 
-        # if window_size == -1, return all True mask.
+        # Full mask?
         if window_size == -1:
-            return torch.ones(im_size, im_size, dtype=torch.bool)
+            return torch.ones((im_size, im_size), dtype=torch.bool)
 
-        mask = torch.zeros(im_size, im_size, dtype=torch.bool)  # all elements are False
+        # Compute random center
+        #   odd window → pick center in [0, im_size-1]
+        #   even window → pick center in [0, im_size]
+        if window_size % 2 == 1:
+            ch = random.randrange(0, im_size)
+            cw = random.randrange(0, im_size)
+        else:
+            ch = random.randrange(0, im_size + 1)
+            cw = random.randrange(0, im_size + 1)
 
-        # sample window center. if window size is odd, sample from pixel position. if even, sample from grid position.
-        window_center_h = random.randrange(0, im_size) if window_size % 2 == 1 else random.randrange(0, im_size + 1)
-        window_center_w = random.randrange(0, im_size) if window_size % 2 == 1 else random.randrange(0, im_size + 1)
+        half = window_size // 2
+        # window runs from center-half (inclusive) to center-half+window_size (exclusive)
+        h0 = ch - half
+        w0 = cw - half
+        h1 = h0 + window_size
+        w1 = w0 + window_size
 
-        for idx_h in range(window_size):
-            for idx_w in range(window_size):
-                h = window_center_h - math.floor(window_size / 2) + idx_h
-                w = window_center_w - math.floor(window_size / 2) + idx_w
+        # clamp to image boundaries
+        h0_clamped = max(h0, 0)
+        w0_clamped = max(w0, 0)
+        h1_clamped = min(h1, im_size)
+        w1_clamped = min(w1, im_size)
 
-                if (0 <= h < im_size) and (0 <= w < im_size):
-                    mask[h, w] = True
-
+        # build mask and fill the slice
+        mask = torch.zeros((im_size, im_size), dtype=torch.bool)
+        mask[h0_clamped:h1_clamped, w0_clamped:w1_clamped] = True
         return mask
     
     def ensure_tuple_and_append(self, existing, value):
