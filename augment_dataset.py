@@ -9,6 +9,7 @@ from torchvision import datasets, transforms
 from augmentations.trivial_augment import CustomTrivialAugmentWide
 from augmentations.random_crop import RandomCrop
 from augmentations.random_erasing import RandomErasing
+from augmentations.patch_gaussian import AddPatchGaussian
 from utils.display_image import display_image_grid
 import random
 from torch.utils.data import Dataset, ConcatDataset
@@ -112,6 +113,7 @@ def create_transforms(
     random_erasing_p: float = 0.3,
     random_erasing_max_scale: float = 0.33,
     random_cropping: int = 0,
+    patch_gaussian: int = 0,
     selected_transforms: Optional[List[str]] = None,
     augmentation_severity: int = 0,
     augmentation_sign: bool = False,
@@ -138,10 +140,13 @@ def create_transforms(
     """
     if dataset_name == "CIFAR10":
         n_classes = 10
+        img_size = 32
     elif dataset_name == "CIFAR100":
         n_classes = 100
+        img_size = 32
     elif dataset_name == "TinyImageNet":
         n_classes = 200
+        img_size = 64
     augmentations = [
         transforms.RandomHorizontalFlip()       # For Tiny-ImageNet: 64 x 64; For CIFAR: 32 x 32
     ]
@@ -182,6 +187,31 @@ def create_transforms(
         augmentations.append(RandomErasing(p=random_erasing_p, scale=(0.02, random_erasing_max_scale), ratio=(0.3, 3.3), value='random', custom=False, chance = 1 / n_classes))
     elif random_erasing == 2:
         augmentations.append(RandomErasing(p=random_erasing_p, scale=(0.02, random_erasing_max_scale), ratio=(0.3, 3.3), value='random', custom=True, chance = 1 / n_classes))
+
+    if patch_gaussian == 1:
+        augmentations.append(AddPatchGaussian(patch_size=int(img_size*0.8), 
+                                              max_scale=1.0, 
+                                              randomize_patch_size=False, 
+                                              randomize_scale=True,
+                                              custom=False))
+    elif patch_gaussian == 2:
+        augmentations.append(AddPatchGaussian(patch_size=int(img_size*0.8), 
+                                              max_scale=1.0, 
+                                              randomize_patch_size=False, 
+                                              randomize_scale=True,
+                                              custom=True))
+    elif patch_gaussian == 3: #normal full noise
+        augmentations.append(AddPatchGaussian(patch_size=-1, 
+                                              max_scale=0.1, 
+                                              randomize_patch_size=False, 
+                                              randomize_scale=True,
+                                              custom=False))
+    elif patch_gaussian == 4: #normal full noise
+        augmentations.append(AddPatchGaussian(patch_size=-1, 
+                                              max_scale=0.1, 
+                                              randomize_patch_size=False, 
+                                              randomize_scale=True,
+                                              custom=True))
 
     transforms_preprocess = transforms.ToTensor()
     transforms_augmentation = transforms.Compose(augmentations)
