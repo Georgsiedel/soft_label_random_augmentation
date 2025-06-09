@@ -309,9 +309,9 @@ def seed_worker(worker_id):
     np.random.seed(worker_seed)
     random.seed(worker_seed)
 
-def visualize(seed=4, batch_size=15, selected_transforms=None, augmentation_sign=False,
+def visualize(seed=4, batch_size=12, selected_transforms=['Rotate', 'ShearX', 'ShearY', "TranslateX", "TranslateY", "Solarize", "Posterize", "Color", "Sharpness", "Contrast", "Identity", "Brightness"], augmentation_sign=False,
               augmentation_severity=-1, dataset="TinyImageNet", random_cropping=0, trivial_augment=2,
-              random_erasing=2, random_erasing_p=0.3, random_erasing_max_scale=0.4, mapping_approach="exact_model_accuracy"):
+              random_erasing=2, random_erasing_p=0.3, random_erasing_max_scale=0.3, mapping_approach="exact_model_accuracy"):
     
     g = torch.Generator()
     g.manual_seed(seed)
