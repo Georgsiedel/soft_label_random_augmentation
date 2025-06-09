@@ -50,7 +50,7 @@ def individual_plots(augmentation_type):
     """Plotting Parameters"""
 
     sns.set_palette("colorblind")
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(8, 4.4))
 
     
     # """Occlusion"""
@@ -83,11 +83,11 @@ def individual_plots(augmentation_type):
         plt.plot(visibility_values_lim, estimated_confidence_values4, '--', label=f'k={k4}', color='purple')
         plt.axhline(y=chance, color=main_data_color, linestyle='--', label=f'Min. Probability')
 
-        plt.xlabel("Proportion Visible ($v$)", fontsize=12)
-        plt.ylabel("Label Confidence ($p$)", fontsize=12)
+        plt.xlabel("Proportion Visible ($v$)", fontsize=11)
+        plt.ylabel("Label Confidence ($p$)", fontsize=11)
         plt.yticks(np.arange(0.1, 1.2, 0.2))
         # #plt.title(f"HVS for {augmentation_type}")
-        plt.legend(frameon=False, loc='upper left', fontsize=11)
+        plt.legend(frameon=False, loc='upper left', fontsize=9.5)
         plt.tight_layout()
         filename = f"visualization/final_plots/Occlusion_plot.pdf"
         plt.savefig(filename, format='pdf')
@@ -183,8 +183,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance, chance_2])
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(main_data_color)
-        plt.xlabel(f"Augmentation Magnitude [$\circ$]", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False, ncols=4, loc='upper center')
+        plt.xlabel(f"Augmentation Magnitude [$\circ$]", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False, ncols=4, loc='upper center', labelspacing=0.25, bbox_to_anchor=(0.5, 1.015))
 
     """Contrast"""
     if augmentation_type == 'Contrast':
@@ -250,8 +250,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance, chance_2])
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(main_data_color)
-        plt.xlabel(f"Augmentation Magnitude", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False)
+        plt.xlabel(f"Augmentation Magnitude", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False)
 
 
     """Brightness"""
@@ -306,8 +306,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance, chance_2])
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(main_data_color)
-        plt.xlabel(f"Augmentation Magnitude", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False)
+        plt.xlabel(f"Augmentation Magnitude", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False)
 
     """Color"""
     if augmentation_type == 'Color':
@@ -357,8 +357,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance_2])
         #plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(secondary_data_color)
-        plt.xlabel(f"Augmentation Magnitude", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False)
+        plt.xlabel(f"Augmentation Magnitude", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False)
 
     """Sharpness"""
     if augmentation_type == 'Sharpness':
@@ -410,8 +410,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance_2])
         #plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(secondary_data_color)
-        plt.xlabel(f"Augmentation Magnitude", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False)
+        plt.xlabel(f"Augmentation Magnitude", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False)
 
     """ShearX"""
     if augmentation_type == "ShearX":
@@ -476,8 +476,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance, chance_2])
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(main_data_color)
-        plt.xlabel(f"Augmentation Magnitude", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False, ncols=4, loc='upper center')
+        plt.xlabel(f"Augmentation Magnitude", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False, ncols=4, loc='upper center', labelspacing=0.25, bbox_to_anchor=(0.5, 1.015))
 
 
     """ShearY"""
@@ -543,8 +543,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance, chance_2])
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(main_data_color)
-        plt.xlabel(f"Augmentation Magnitude", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False, ncols=4, loc='upper center')
+        plt.xlabel(f"Augmentation Magnitude", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False, ncols=4, loc='upper center', labelspacing=0.25, bbox_to_anchor=(0.5, 1.015))
 
     """TranslateX"""
     if augmentation_type == "TranslateX":
@@ -611,8 +611,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance, chance_2])
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(main_data_color)
-        plt.xlabel(f"Augmentation Magnitude [px]", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False, ncols=4, loc='upper center')
+        plt.xlabel(f"Augmentation Magnitude [px]", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False, ncols=4, loc='upper center', labelspacing=0.25, bbox_to_anchor=(0.5, 1.015))
         
 
     """TranslateY"""
@@ -680,8 +680,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance, chance_2])
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(main_data_color)
-        plt.xlabel(f"Augmentation Magnitude [px]", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False, ncols=4, loc='upper center')
+        plt.xlabel(f"Augmentation Magnitude [px]", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False, ncols=4, loc='upper center', labelspacing=0.25, bbox_to_anchor=(0.5, 1.015))
 
     """Posterize"""
     if augmentation_type == 'Posterize':
@@ -731,8 +731,8 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance_2])
         #plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(secondary_data_color)
-        plt.xlabel(f"Augmentation Magnitude", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False)
+        plt.xlabel(f"Augmentation Magnitude", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False)
 
 
     if augmentation_type == 'Solarize':
@@ -779,20 +779,20 @@ def individual_plots(augmentation_type):
         plt.yticks(list(ticks) + [chance, chance_2])
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(secondary_data_color)
-        plt.xlabel(f"Augmentation Magnitude", fontsize=16, fontweight='bold')
-        plt.legend(fontsize=14, frameon=False)
+        plt.xlabel(f"Augmentation Magnitude", fontsize=11, fontweight='bold')
+        plt.legend(fontsize=9.5, frameon=False)
 
 
     plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-    plt.ylabel("Label Confidence", fontsize=16, fontweight='bold')
-    plt.tick_params(axis='both', labelsize=14)
+    plt.ylabel("Label Confidence", fontsize=11, fontweight='bold')
+    plt.tick_params(axis='both', labelsize=8.5)
     plt.grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
     #plt.gca().grid(False)
     plt.tight_layout()
     file_name = f"visualization/final_plots/{augmentation_type}_plot.pdf"
     plt.savefig(file_name, format='pdf')
-    plt.show()
+    #plt.show()
 
 if __name__ == "__main__":
 
-    individual_plots("Contrast")
+    individual_plots("Rotate")
