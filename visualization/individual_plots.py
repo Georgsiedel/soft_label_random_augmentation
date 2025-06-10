@@ -167,8 +167,8 @@ def individual_plots(augmentation_type):
 
         plt.plot(augmentation_magnitude, rotation_hvs, '-', label='Rotation HVS', color=main_data_color, linewidth=2)
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2}, min=HVS', color=est_conf_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2}, min=HVS)', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k=est. ({k1}, min={chance_1})', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
         plt.plot(augmentation_magnitude, ncc, '--', label='NCC', color=metrics_color, linewidth=1, alpha=0.8)
@@ -236,7 +236,7 @@ def individual_plots(augmentation_type):
 
         plt.plot(augmentation_magnitude, contrast_hvs, '-', label='Contrast HVS', color=main_data_color, linewidth=2)
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2_neg, k2_pos}, min=HVS', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2_neg, k2_pos}, min=HVS)', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
@@ -292,7 +292,7 @@ def individual_plots(augmentation_type):
 
         plt.plot(augmentation_magnitude, contrast_hvs, '-', label='Contrast HVS', color=main_data_color, linewidth=2)
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2_neg, k2_pos}, min=HVS, Model Accuracy', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2_neg, k2_pos}, min=HVS, Model Accuracy)', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
@@ -343,7 +343,7 @@ def individual_plots(augmentation_type):
         estimated_confidence_values2 = np.array(estimated_confidence_values2)
 
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2}, min=Model Accuracy', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2}, min=Model Accuracy)', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
@@ -396,7 +396,7 @@ def individual_plots(augmentation_type):
         estimated_confidence_values2 = np.array(estimated_confidence_values2)
 
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2_neg, k2_pos}, min=Model Accuracy', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2_neg, k2_pos}, min=Model Accuracy)', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
@@ -461,7 +461,7 @@ def individual_plots(augmentation_type):
 
         plt.plot(augmentation_magnitude, rotation_hvs, '-', label='Rotation HVS', color=main_data_color, linewidth=2)
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2}, min=HVS', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2}, min=HVS)', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
@@ -528,7 +528,7 @@ def individual_plots(augmentation_type):
 
         plt.plot(augmentation_magnitude, rotation_hvs, '-', label='Rotation HVS', color=main_data_color, linewidth=2)
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2}, min=HVS', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2}, min=HVS)', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
@@ -596,7 +596,7 @@ def individual_plots(augmentation_type):
 
         plt.plot(augmentation_magnitude, occlusion_hvs, '-', label='Occlusion HVS', color=main_data_color, linewidth=2)
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2}, min=HVS', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2}, min=HVS)', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
@@ -665,7 +665,7 @@ def individual_plots(augmentation_type):
 
         plt.plot(augmentation_magnitude, occlusion_hvs, '-', label='Occlusion HVS', color=main_data_color, linewidth=2)
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2}, min=HVS', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2}, min=HVS)', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
@@ -717,7 +717,7 @@ def individual_plots(augmentation_type):
         estimated_confidence_values2 = np.array(estimated_confidence_values2)
 
         plt.plot(unique_augmentation_magnitudes, unique_model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(unique_augmentation_magnitudes, estimated_confidence_values2, '--', label=f'k={k2}, min=Model Accuracy', color=est_conf_color, linewidth=2)
+        plt.plot(unique_augmentation_magnitudes, estimated_confidence_values2, '--', label=f'k=est. ({k2}, min=Model Accuracy)', color=est_conf_color, linewidth=2)
         plt.plot(unique_augmentation_magnitudes, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(unique_augmentation_magnitudes, unique_const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
@@ -765,7 +765,7 @@ def individual_plots(augmentation_type):
         estimated_confidence_values2 = np.array(estimated_confidence_values2)
 
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k={k2}, min=Model Accuracy', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2}, min=Model Accuracy)', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k={k1}, min={chance_1}', color=est_conf_color, linewidth=2)
         plt.plot(const_severity, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
