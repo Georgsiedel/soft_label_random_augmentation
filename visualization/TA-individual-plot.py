@@ -4,27 +4,27 @@ import matplotlib.pyplot as plt
 data_text = """
 1	Rotate	0	no	65,73					65,73	39,19
 1	ShearX	0	no	67,81					67,81	39,69
-1	ShearY	0	no	73,08					73,08	42,60
+1	Solarize	0	no	70,53					70,53	44,80
 1	TranslateX	0	no	70,92					70,92	36,92
-1	TranslateY	0	no	76,21					76,21	40,25
+1	Contrast	0	no	73,37					73,37	49,84
+1	ShearY	0	no	73,08					73,08	42,60
+1	Sharpness	0	no	73,55					73,55	50,66
 1	Brightness	0	no	73,53					73,53	49,86
 1	Color	0	no	73,46					73,46	44,30
-1	Contrast	0	no	73,37					73,37	49,84
-1	Sharpness	0	no	73,55					73,55	50,66
 1	Posterize	0	no	72,27					72,27	54,77
-1	Solarize	0	no	70,53					70,53	44,80
+1	TranslateY	0	no	76,21					76,21	40,25
 
 2	Rotate	0	no	70,23					70,23	44,38
 2	ShearX	0	no	71,25					71,25	43,74
-2	ShearY	0	no	75,44					75,44	45,80
+2	Solarize	0	no	73,05					73,05	47,26
 2	TranslateX	0	no	72,76					72,76	39,14
-2	TranslateY	0	no	77,32					77,32	41,98
+2	Contrast	0	no	75,26					75,26	48,16
+2	ShearY	0	no	75,44					75,44	45,80
+2	Sharpness	0	no	74,60					74,60	46,78
 2	Brightness	0	no	75,33					75,33	46,50
 2	Color	0	no	74,56					74,56	45,20
-2	Contrast	0	no	75,26					75,26	48,16
-2	Sharpness	0	no	74,60					74,60	46,78
 2	Posterize	0	no	73,29					73,29	53,75
-2	Solarize	0	no	73,05					73,05	47,26
+2	TranslateY	0	no	77,32					77,32	41,98
 
 2	Rotate	0	no	70,23					70,23	44,38
 2	Rotate,ShearX	0	no	72,62					72,62	45,76

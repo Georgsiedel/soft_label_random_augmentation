@@ -48,7 +48,7 @@ if __name__ == "__main__":
     num_bins = 31
 
     sns.set_palette("colorblind")
-    fig, ax = plt.subplots(4, 3, figsize=(8, 10))
+    fig, ax = plt.subplots(4, 3, figsize=(8, 8.5))
     ax[3, 2].remove()
     
     """Rotate"""
@@ -110,9 +110,9 @@ if __name__ == "__main__":
     ax[0, 2].set_ylim(0.0, 1.0)
     ax[0, 2].axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=0.6)
     ax[0, 2].axhline(y=chance_2, color=main_data_color, linestyle=':', label=f'HVS lower bound', linewidth=2, alpha=0.6)
-    ax[0, 2].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[0, 2].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[0, 2].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[0, 2].tick_params(axis='both', labelsize=7)
+    ax[0, 2].tick_params(axis='both', labelsize=8)
     
     """Contrast"""
     augmentation_type = 'Contrast'
@@ -160,9 +160,9 @@ if __name__ == "__main__":
     ax[2, 0].set_ylim(0.0, 1.0)
     ax[2, 0].axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=0.6)
     ax[2, 0].axhline(y=chance_2, color=main_data_color, linestyle=':', label=f'HVS lower bound', linewidth=2, alpha=0.6)
-    ax[2, 0].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[2, 0].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[2, 0].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[2, 0].tick_params(axis='both', labelsize=7)
+    ax[2, 0].tick_params(axis='both', labelsize=8)
     
     #plt.xlabel(f"Augmentation Magnitude", fontsize=16, fontweight='bold')
     #ax[0, 1].set_xticks(np.arange(-1.0, 1.1, 0.4))
@@ -213,9 +213,9 @@ if __name__ == "__main__":
     ax[1, 2].set_ylim(0.0, 1.0)
     ax[1, 2].axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=0.6)
     ax[1, 2].axhline(y=chance_2, color=main_data_color, linestyle=':', label=f'HVS lower bound', linewidth=2, alpha=0.6)
-    ax[1, 2].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[1, 2].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[1, 2].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[1, 2].tick_params(axis='both', labelsize=7)
+    ax[1, 2].tick_params(axis='both', labelsize=8)
 
     """Color"""
     augmentation_type = 'Color'
@@ -260,9 +260,9 @@ if __name__ == "__main__":
     ax[2, 2].set_ylim(0.8, 1.0)
     ax[2, 2].set_yticks([0.8, 0.9, 1.0])
     ax[2, 2].axhline(y=chance_2, color=secondary_data_color, linestyle=':', label=f'Model Accuracy lower bound', linewidth=2, alpha=0.6)
-    ax[2, 2].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[2, 2].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[2, 2].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[2, 2].tick_params(axis='both', labelsize=7)
+    ax[2, 2].tick_params(axis='both', labelsize=8)
 
     #ax[0, 3].set_yticks(np.arange(0.90, 1.01, 0.01))
     #ax[0, 3].set_xticks(np.arange(-1.0, 1.1, 0.4))
@@ -313,9 +313,9 @@ if __name__ == "__main__":
     ax[2, 1].set_ylim(0.8, 1.0)
     ax[2, 1].set_yticks([0.8, 0.9, 1.0])
     ax[2, 1].axhline(y=chance_2, color=secondary_data_color, linestyle=':', label=f'Model Accuracy lower bound', linewidth=2, alpha=0.6)
-    ax[2, 1].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[2, 1].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[2, 1].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[2, 1].tick_params(axis='both', labelsize=7)
+    ax[2, 1].tick_params(axis='both', labelsize=8)
     #ax[0, 3].set_yticks(np.arange(0.90, 1.01, 0.01))
     #ax[0, 3].set_xticks(np.arange(-1.0, 1.1, 0.4))
 
@@ -377,9 +377,9 @@ if __name__ == "__main__":
     ax[0, 0].set_ylim(0.0, 1.0)
     ax[0, 0].axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=0.6)
     ax[0, 0].axhline(y=chance_2, color=main_data_color, linestyle=':', label=f'HVS lower bound', linewidth=2, alpha=0.6)
-    ax[0, 0].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[0, 0].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[0, 0].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[0, 0].tick_params(axis='both', labelsize=7)
+    ax[0, 0].tick_params(axis='both', labelsize=8)
 
     """ShearY"""
     augmentation_type = "ShearY"
@@ -439,9 +439,9 @@ if __name__ == "__main__":
     ax[0, 1].set_ylim(0.0, 1.0)
     ax[0, 1].axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=0.6)
     ax[0, 1].axhline(y=chance_2, color=main_data_color, linestyle=':', label=f'HVS lower bound', linewidth=2, alpha=0.6)
-    ax[0, 1].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[0, 1].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[0, 1].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[0, 1].tick_params(axis='both', labelsize=7)
+    ax[0, 1].tick_params(axis='both', labelsize=8)
 
     """TranslateX"""
     augmentation_type = "TranslateX"
@@ -503,9 +503,9 @@ if __name__ == "__main__":
     ax[1, 0].set_ylim(0.0, 1.0)
     ax[1, 0].axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=0.6)
     ax[1, 0].axhline(y=chance_2, color=main_data_color, linestyle=':', label=f'HVS lower bound', linewidth=2, alpha=0.6)
-    ax[1, 0].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[1, 0].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[1, 0].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[1, 0].tick_params(axis='both', labelsize=7)
+    ax[1, 0].tick_params(axis='both', labelsize=8)
 
 
     """TranslateY"""
@@ -568,9 +568,9 @@ if __name__ == "__main__":
     ax[1, 1].set_ylim(0.0, 1.0)
     ax[1, 1].axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=0.6)
     ax[1, 1].axhline(y=chance_2, color=main_data_color, linestyle=':', label=f'HVS lower bound', linewidth=2, alpha=0.6)
-    ax[1, 1].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[1, 1].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[1, 1].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[1, 1].tick_params(axis='both', labelsize=7)
+    ax[1, 1].tick_params(axis='both', labelsize=8)
 
     """Posterize"""
     augmentation_type = 'Posterize'
@@ -615,9 +615,9 @@ if __name__ == "__main__":
     ax[3, 0].plot(augmentation_magnitude, scc, ':', label='SCC', color=metrics_color, linewidth=1, alpha=0.8)
     ax[3, 0].set_ylim(0.5, 1.0)
     ax[3, 0].axhline(y=chance_2, color=secondary_data_color, linestyle=':', label=f'Model Accuracy lower bound', linewidth=2, alpha=0.6)
-    ax[3, 0].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[3, 0].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[3, 0].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[3, 0].tick_params(axis='both', labelsize=7)
+    ax[3, 0].tick_params(axis='both', labelsize=8)
 
     """Solarize: TBD again for ONLY positive augmentation range"""
     augmentation_type = 'Solarize'
@@ -660,9 +660,9 @@ if __name__ == "__main__":
     ax[3, 1].set_ylim(0.0, 1.0)
     ax[3, 1].axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=0.6)
     ax[3, 1].axhline(y=chance_2, color=secondary_data_color, linestyle=':', label=f'Model Accuracy lower bound', linewidth=2, alpha=0.6)
-    ax[3, 1].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold')
+    ax[3, 1].set_title(f"{augmentation_type}", fontsize=9, fontweight='bold', pad=2)
     ax[3, 1].grid(visible=True, axis='y', which='major', linestyle='--', linewidth=0.5, alpha=0.5)
-    ax[3, 1].tick_params(axis='both', labelsize=7)
+    ax[3, 1].tick_params(axis='both', labelsize=8)
 
     # plt.tight_layout()
 
@@ -690,8 +690,8 @@ if __name__ == "__main__":
     fig.text(0.015, 0.5, 'Label Confidence', va='center', rotation='vertical', fontsize=11, fontweight='bold')  # Y-axis label
 
     # Adjust tight layout to fit legend
-    plt.tight_layout(rect=[0.02, 0.02, 1, 1])
+    plt.tight_layout(rect=[0.02, 0.02, 1, 1], h_pad=0.3, w_pad=0.6)
 
     file_name = "visualization/final_plots/all_augmentations_subpot.pdf"
     plt.savefig(file_name, format='pdf')
-    plt.show()
+    #plt.show()
