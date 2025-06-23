@@ -167,9 +167,9 @@ def individual_plots(augmentation_type):
 
         plt.plot(augmentation_magnitude, rotation_hvs, '-', label='Rotation HVS', color=main_data_color, linewidth=2)
         plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=f'k=est. ({k2}, min=HVS)', color=est_conf_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'k=est. ({k1}, min={chance_1})', color=est_conf_color, linewidth=2)
-        plt.plot(augmentation_magnitude, const_k, '-', label=f'k=2, min=chance', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=fr'$k=est. (k={k2}, p_{{\min}}=\mathrm{{HVS}})$', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'$k={k1}, p_{{\min}}={chance_1}$', color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, const_k, '-', label=f'$k=2, p_{{\min}}=\mathrm{{chance}}$', color=est_conf_color, linewidth=2)
         plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
         plt.plot(augmentation_magnitude, ncc, '--', label='NCC', color=metrics_color, linewidth=1, alpha=0.8)
         plt.plot(augmentation_magnitude, uiq, '.-', label='UIQ', color=metrics_color, linewidth=1, alpha=0.8)
@@ -184,7 +184,7 @@ def individual_plots(augmentation_type):
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(main_data_color)
         plt.xlabel(f"Augmentation Magnitude [$\circ$]", fontsize=11, fontweight='bold')
-        plt.legend(fontsize=9.5, frameon=False, ncols=4, loc='upper center', labelspacing=0.25, bbox_to_anchor=(0.5, 1.015))
+        plt.legend(fontsize=9.5, frameon=False, ncols=4, handlelength=1.8, loc='upper center', labelspacing=0.25, bbox_to_anchor=(0.5, 1.015))
 
     """Contrast"""
     if augmentation_type == 'Contrast':
