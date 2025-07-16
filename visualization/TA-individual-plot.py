@@ -106,7 +106,7 @@ cum_acc_soft   = [e['accuracy']  for e in block3]
 cum_rob_soft   = [e['robustness'] for e in block3]
 
 # 5) Create a 2×2 grid: share x‐axis per column, share y‐axis per row, figure size 9×6
-fig, axes = plt.subplots(2, 2, figsize=(9, 5),
+fig, axes = plt.subplots(2, 2, figsize=(8, 4),
                          sharex='col', sharey='row')
 
 # Top-left: Individual Accuracy (markers only, no connecting lines)
@@ -135,7 +135,7 @@ ax3.plot(indiv_names, std_rob_ind, marker='o', linestyle='', label='Standard')
 ax3.plot(indiv_names, soft_rob_ind, marker='s', linestyle='', label='Soft')
 ax3.set_xticks(range(len(indiv_names)))
 ax3.set_yticks(range(40, 101, 10))
-ax3.set_xticklabels(indiv_names, rotation=37.5, fontsize=8.5, ha='right')
+ax3.set_xticklabels(indiv_names, rotation=35, fontsize=8.5, ha='right')
 ax3.set_xlabel('Individual Transformations', fontweight='bold')
 ax3.set_ylabel('Robustness (%)', fontweight='bold')
 ax3.legend(frameon=False)
@@ -146,12 +146,12 @@ ax4 = axes[1, 1]
 ax4.plot(cum_names_std, cum_rob_std, marker='o', label='Standard')
 ax4.plot(cum_names_soft, cum_rob_soft, marker='s', label='Soft')
 ax4.set_xticks(range(len(cum_names_std)))
-ax4.set_xticklabels(cum_names_std, rotation=37.5, fontsize=8.5, ha='right')
+ax4.set_xticklabels(cum_names_std, rotation=35, fontsize=8.5, ha='right')
 ax4.set_xlabel('Cumulative Transformations', fontweight='bold')
 ax4.legend(loc='lower right', frameon=False)
 ax4.grid(True, axis='y', linewidth=0.2)
 
-plt.tight_layout()
+plt.tight_layout(h_pad=0.5, w_pad=0.5)
 #plt.show()
 file_name = f"visualization/final_plots/TA-individual_plot.pdf"
 plt.savefig(file_name, format='pdf')

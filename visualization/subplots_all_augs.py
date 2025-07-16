@@ -48,7 +48,7 @@ if __name__ == "__main__":
     num_bins = 31
 
     sns.set_palette("colorblind")
-    fig, ax = plt.subplots(4, 3, figsize=(8, 8.5))
+    fig, ax = plt.subplots(4, 3, figsize=(8, 8))
     ax[3, 2].remove()
     
     """Rotate"""
@@ -669,9 +669,9 @@ if __name__ == "__main__":
     legend_labels = [
     ('Model Accuracy', secondary_data_color, '-'),
     ('HVS', main_data_color, '-'),
-    ('k=2, p$\geq$chance', est_conf_color, '-'),
-    ('k=2, p$\geq$0.7', est_conf_color, '-.'),
-    ('k=est. (HVS/Model Accuracy)', est_conf_color, '--'),
+    ('$k=2, p_{{\min}}=\mathrm{{HVS}}$', est_conf_color, '-'),
+    ('$k=2, p_{{\min}}=\mathrm{{0.7}}$', est_conf_color, '-.'),
+    ('$k=est.$ (HVS/Model Accuracy)', est_conf_color, '--'),
     ('Image Comparison Metrics', metrics_color, '-'),
     ('chance = 0.1', est_conf_color, ':'),
     ('min (HVS)', main_data_color, ':'),
