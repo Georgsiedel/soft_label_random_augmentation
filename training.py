@@ -13,6 +13,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from models.resnets import WideResNet_28_4, WideResNet_28_4_ref, ResNet18
+from models.resnext import ResNeXt29_32x4d
 from augment_dataset import load_data, create_transforms, load_data_c_separately
 from utils.train_utils import soft_loss
 
@@ -87,7 +88,7 @@ def train(
     )
 
     # 4. Model, loss, optimizer, scheduler
-    net = WideResNet_28_4(num_classes=num_classes, factor=factor).to(device)
+    net = ResNeXt29_32x4d(num_classes=num_classes, factor=factor).to(device) #WideResNet_28_4 ResNeXt29_32x4d
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=learning_rate,
                           momentum=0.9, weight_decay=1e-4)
