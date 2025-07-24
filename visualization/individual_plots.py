@@ -165,26 +165,49 @@ def individual_plots(augmentation_type):
         estimated_confidence_values1 = np.array(estimated_confidence_values1)
         estimated_confidence_values2 = np.array(estimated_confidence_values2)
 
-        plt.plot(augmentation_magnitude, rotation_hvs, '-', label='Rotation HVS', color=main_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=fr'$k=est. (k={k2}, p_{{\min}}=\mathrm{{HVS}})$', color=est_conf_color, linewidth=2)
-        plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'$k={k1}, p_{{\min}}={chance_1}$', color=est_conf_color, linewidth=2)
-        plt.plot(augmentation_magnitude, const_k, '-', label=f'$k=2, p_{{\min}}=\mathrm{{chance}}$', color=est_conf_color, linewidth=2)
-        plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=0.8)
-        plt.plot(augmentation_magnitude, ncc, '--', label='NCC', color=metrics_color, linewidth=1, alpha=0.8)
-        plt.plot(augmentation_magnitude, uiq, '.-', label='UIQ', color=metrics_color, linewidth=1, alpha=0.8)
-        plt.plot(augmentation_magnitude, scc, ':', label='SCC', color=metrics_color, linewidth=1, alpha=0.8)
-        plt.plot(augmentation_magnitude, sift, '-.', label='SIFT', color=metrics_color, linewidth=1, alpha=0.8)
+        #plt.plot(augmentation_magnitude, rotation_hvs, '-', label='Rotation HVS', color=main_data_color, linewidth=2)
+        #plt.plot(augmentation_magnitude, model_accuracy, "-", label="Model Accuracy", color=secondary_data_color, linewidth=2)
+        #plt.plot(augmentation_magnitude, estimated_confidence_values2, '--', label=fr'$k=est. (k={k2}, p_{{\min}}=\mathrm{{HVS}})$', color=est_conf_color, linewidth=2)
+        #plt.plot(augmentation_magnitude, estimated_confidence_values1, '-.', label=f'$k={k1}, p_{{\min}}={chance_1}$', color=est_conf_color, linewidth=2)
+        #plt.plot(augmentation_magnitude, const_k, '-', label=f'$k=2, p_{{\min}}=\mathrm{{chance}}$', color=est_conf_color, linewidth=2)
+        #plt.plot(augmentation_magnitude, ssim, '-', label='SSIM', color=metrics_color, linewidth=1, alpha=1.0)
+        #plt.plot(augmentation_magnitude, ncc, '--', label='NCC', color=metrics_color, linewidth=1, alpha=1.0)
+        #plt.plot(augmentation_magnitude, uiq, '.-', label='UIQ', color=metrics_color, linewidth=1, alpha=1.0)
+        #plt.plot(augmentation_magnitude, scc, ':', label='SCC', color=metrics_color, linewidth=1, alpha=1.0)
+        #plt.plot(augmentation_magnitude, sift, '-.', label='SIFT', color=metrics_color, linewidth=1, alpha=1.0)
         plt.ylim(0.0, 1.2)
         ticks = np.linspace(0.0, 1.0, 6)
-        plt.axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=0.6)
-        plt.axhline(y=chance_2, color=main_data_color, linestyle=':', label=f'HVS lower bound', linewidth=2, alpha=0.6)
-        
+        #plt.axhline(y=chance, color=est_conf_color, linestyle=':', label=f'Chance', linewidth=2, alpha=1.0)
+        #plt.axhline(y=chance_2, color=main_data_color, linestyle=':', label=f'HVS lower bound', linewidth=2, alpha=1.0)
+
+        plt.plot(augmentation_magnitude, rotation_hvs, '-', marker='o', markersize=4, label='Rotation HVS', color=main_data_color,      linewidth=2)
+        plt.axhline(y=chance_2,   color=main_data_color,  linestyle='-',  linewidth=2, label='HVS lower bound')
+
+        plt.plot(augmentation_magnitude, estimated_confidence_values2,  ':', marker='o', markersize=4, label=fr'$k=est.\ (k={k2}, p_{{\min}}=\mathrm{{HVS}})$',
+                                                                color=est_conf_color,       linewidth=2)
+        plt.plot(augmentation_magnitude, estimated_confidence_values1, ':', marker='x', markersize=4,  label=f'$k={k1},\ p_{{\min}}={chance_1}$',
+                                                                color=est_conf_color, linewidth=2)
+        plt.plot(augmentation_magnitude, const_k, linestyle= ':', marker='D', markersize=4, label=r'$k=2,\ p_{\min}=\mathrm{chance}$', 
+                 color=est_conf_color, linewidth=2)
+
+        # --- Horizontal reference lines ---
+        plt.axhline(y=chance,     color=est_conf_color,   linestyle=':',  linewidth=2, label='Chance')
+
+        plt.plot(augmentation_magnitude, model_accuracy, '--',  marker='s', markersize=4,  label='Model Accuracy', color=secondary_data_color, linewidth=2)
+
+        # --- Metrics with markers ---
+        plt.plot(augmentation_magnitude, ssim, linestyle='-.',   marker='x', markersize=4, label='SSIM', color=metrics_color, linewidth=1)
+        plt.plot(augmentation_magnitude, ncc,  linestyle='-.', marker='o', markersize=3.5, label='NCC',  color=metrics_color, linewidth=1)
+        plt.plot(augmentation_magnitude, uiq,  linestyle='-.',  marker='s', markersize=3.5, label='UIQ',  color=metrics_color, linewidth=1)
+        plt.plot(augmentation_magnitude, scc,  linestyle='-.',   marker='^', markersize=3.5, label='SCC',  color=metrics_color, linewidth=1)
+        plt.plot(augmentation_magnitude, sift, linestyle='-.', marker='D', markersize=3.5, label='SIFT', color=metrics_color, linewidth=1)
+
+
         plt.yticks(list(ticks) + [chance, chance_2])
         plt.gca().get_yticklabels()[-2].set_color(est_conf_color)
         plt.gca().get_yticklabels()[-1].set_color(main_data_color)
         plt.xlabel(f"Augmentation Magnitude [$\circ$]", fontsize=11, fontweight='bold')
-        plt.legend(fontsize=9.5, frameon=False, ncols=4, handlelength=1.8, loc='upper center', labelspacing=0.25, bbox_to_anchor=(0.5, 1.015))
+        plt.legend(fontsize=9.5, frameon=False, ncols=4, handlelength=2.8, loc='upper center', labelspacing=0.18, columnspacing=0.8, bbox_to_anchor=(0.5, 1.025))
 
     """Contrast"""
     if augmentation_type == 'Contrast':
