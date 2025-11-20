@@ -96,15 +96,15 @@ class RandomCrop:
         )
 
         # define the cropping boundaries.
-        left, right = tx + dim1, tx + dim1 * 2
-        top, bottom = ty + dim2, ty + dim2 * 2
+        left, right = tx + dim2, tx + dim2 * 2
+        top, bottom = ty + dim1, ty + dim1 * 2
 
         # crop the image
         cropped_image = bg[:, top:bottom, left:right]
 
         if self.custom:
             # compute visibility and confidence score
-            visibility = self.compute_visibility(dim1, dim2, tx, ty)
+            visibility = self.compute_visibility(dim1, dim2, ty, tx)
             confidence_rc = (
                 1 - (1 - self.chance) * (1 - visibility) ** self.k
             )  # The non-linear function
